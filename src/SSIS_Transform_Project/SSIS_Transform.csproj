@@ -26,31 +26,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- SSIS Dependencies -->
-    <Reference Include="Microsoft.SqlServer.DTSPipelineWrap">
-      <HintPath>$(ProgramFiles)\Microsoft SQL Server\150\SDK\Assemblies\Microsoft.SqlServer.DTSPipelineWrap.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="Microsoft.SqlServer.DTSRuntimeWrap">
-      <HintPath>$(ProgramFiles)\Microsoft SQL Server\150\SDK\Assemblies\Microsoft.SqlServer.DTSRuntimeWrap.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="Microsoft.SqlServer.ManagedDTS">
-      <HintPath>$(ProgramFiles)\Microsoft SQL Server\150\SDK\Assemblies\Microsoft.SqlServer.ManagedDTS.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    
-    <!-- .NET Framework Dependencies -->
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Data.SqlClient" />
-    <Reference Include="System.Xml" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="Microsoft.CSharp" />
+    <!-- Standard .NET Dependencies -->
+    <PackageReference Include="System.Data.SqlClient" Version="4.8.6" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="log4net" Version="2.0.15" />
   </ItemGroup>
-
-
 
   <ItemGroup>
     <!-- Documentation -->
@@ -74,24 +54,6 @@
       <ComVisible>false</ComVisible>
       <Guid>12345678-1234-1234-1234-123456789012</Guid>
     </AssemblyInfo>
-  </ItemGroup>
-
-  <PropertyGroup>
-    <!-- Build Events -->
-    <PostBuildEvent>
-      echo Copying files to SSIS deployment directory...
-      if not exist "$(ProgramFiles)\Microsoft SQL Server\150\DTS\ScriptComponents" mkdir "$(ProgramFiles)\Microsoft SQL Server\150\DTS\ScriptComponents"
-      copy "$(TargetPath)" "$(ProgramFiles)\Microsoft SQL Server\150\DTS\ScriptComponents\"
-      copy "$(TargetDir)*.pdb" "$(ProgramFiles)\Microsoft SQL Server\150\DTS\ScriptComponents\" 2&gt;nul
-    </PostBuildEvent>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <!-- NuGet Packages (if needed for additional functionality) -->
-    <!--
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="log4net" Version="2.0.15" />
-    -->
   </ItemGroup>
 
 </Project>
