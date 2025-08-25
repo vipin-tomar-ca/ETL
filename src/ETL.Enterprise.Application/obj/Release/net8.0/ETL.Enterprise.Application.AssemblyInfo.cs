@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ETL.Enterprise.Application")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+fa056c679069dd8b0979ab00b4adb36914dfbb12")]
 [assembly: System.Reflection.AssemblyProductAttribute("ETL.Enterprise.Application")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ETL.Enterprise.Application")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

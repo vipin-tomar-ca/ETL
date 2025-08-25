@@ -17,3 +17,4 @@
 /Users/vipintomar/AIApps/ETL-scalable/src/ETL.Enterprise.Infrastructure/obj/Release/net8.0/ETL.Enterprise.Infrastructure.pdb
 /Users/vipintomar/AIApps/ETL-scalable/src/ETL.Enterprise.Infrastructure/obj/Release/net8.0/ETL.Enterprise.Infrastructure.genruntimeconfig.cache
 /Users/vipintomar/AIApps/ETL-scalable/src/ETL.Enterprise.Infrastructure/obj/Release/net8.0/ref/ETL.Enterprise.Infrastructure.dll
+/Users/vipintomar/AIApps/ETL-scalable/src/ETL.Enterprise.Infrastructure/obj/Release/net8.0/ETL.Enterprise.Infrastructure.sourcelink.json

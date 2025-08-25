@@ -10,3 +10,4 @@
 /Users/vipintomar/AIApps/ETL-scalable/legacy/ETL.Core/obj/Release/net8.0/refint/ETL.Core.dll
 /Users/vipintomar/AIApps/ETL-scalable/legacy/ETL.Core/obj/Release/net8.0/ETL.Core.pdb
 /Users/vipintomar/AIApps/ETL-scalable/legacy/ETL.Core/obj/Release/net8.0/ref/ETL.Core.dll
+/Users/vipintomar/AIApps/ETL-scalable/legacy/ETL.Core/obj/Release/net8.0/ETL.Core.sourcelink.json

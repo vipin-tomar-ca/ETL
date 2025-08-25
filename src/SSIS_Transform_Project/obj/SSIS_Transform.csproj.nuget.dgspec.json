@@ -43,6 +43,18 @@
               "target": "Package",
               "version": "[1.0.3, )",
               "autoReferenced": true
+            },
+            "Newtonsoft.Json": {
+              "target": "Package",
+              "version": "[13.0.3, )"
+            },
+            "System.Data.SqlClient": {
+              "target": "Package",
+              "version": "[4.8.6, )"
+            },
+            "log4net": {
+              "target": "Package",
+              "version": "[2.0.15, )"
             }
           },
           "runtimeIdentifierGraphPath": "/opt/homebrew/Cellar/dotnet@8/8.0.15/libexec/sdk/8.0.115/RuntimeIdentifierGraph.json"

@@ -34,3 +34,4 @@
 /Users/vipintomar/AIApps/ETL-scalable/legacy/ETL.Console/obj/Release/net8.0/ETL.Console.pdb
 /Users/vipintomar/AIApps/ETL-scalable/legacy/ETL.Console/obj/Release/net8.0/ETL.Console.genruntimeconfig.cache
 /Users/vipintomar/AIApps/ETL-scalable/legacy/ETL.Console/obj/Release/net8.0/ref/ETL.Console.dll
+/Users/vipintomar/AIApps/ETL-scalable/legacy/ETL.Console/obj/Release/net8.0/ETL.Console.sourcelink.json

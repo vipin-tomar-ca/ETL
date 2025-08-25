@@ -1,2 +1,12 @@
 /Users/vipintomar/AIApps/ETL-scalable/src/SSIS_Transform_Project/obj/Release/net472/SSIS_Transform.GeneratedMSBuildEditorConfig.editorconfig
 /Users/vipintomar/AIApps/ETL-scalable/src/SSIS_Transform_Project/obj/Release/net472/SSIS_Transform.csproj.CoreCompileInputs.cache
+/Users/vipintomar/AIApps/ETL-scalable/src/SSIS_Transform_Project/bin/Release/net472/SSIS_Transform.dll
+/Users/vipintomar/AIApps/ETL-scalable/src/SSIS_Transform_Project/bin/Release/net472/SSIS_Transform.pdb
+/Users/vipintomar/AIApps/ETL-scalable/src/SSIS_Transform_Project/bin/Release/net472/log4net.dll
+/Users/vipintomar/AIApps/ETL-scalable/src/SSIS_Transform_Project/bin/Release/net472/Newtonsoft.Json.dll
+/Users/vipintomar/AIApps/ETL-scalable/src/SSIS_Transform_Project/bin/Release/net472/System.Data.SqlClient.dll
+/Users/vipintomar/AIApps/ETL-scalable/src/SSIS_Transform_Project/obj/Release/net472/SSIS_Transform.csproj.AssemblyReference.cache
+/Users/vipintomar/AIApps/ETL-scalable/src/SSIS_Transform_Project/obj/Release/net472/SSIS_Transform.csproj.CopyComplete
+/Users/vipintomar/AIApps/ETL-scalable/src/SSIS_Transform_Project/obj/Release/net472/SSIS_Transform.dll
+/Users/vipintomar/AIApps/ETL-scalable/src/SSIS_Transform_Project/obj/Release/net472/SSIS_Transform.pdb
+/Users/vipintomar/AIApps/ETL-scalable/src/SSIS_Transform_Project/obj/Release/net472/SSIS_Transform.sourcelink.json
