@@ -1,0 +1,236 @@
+version: '3.8'
+
+# =============================================
+# Multi-Database Transform Application Docker Compose
+# =============================================
+# This compose file sets up a complete environment for the ETL application
+# including metadata database, sample source databases, and Spark cluster
+
+services:
+  # Metadata Database (SQL Server)
+  metadata-db:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    container_name: etl-metadata-db
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=YourStrong@Passw0rd
+      - MSSQL_PID=Developer
+    ports:
+      - "1433:1433"
+    volumes:
+      - metadata-data:/var/opt/mssql
+      - ./DatabaseSetup.sql:/docker-entrypoint-initdb.d/DatabaseSetup.sql
+    networks:
+      - etl-network
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P YourStrong@Passw0rd -Q 'SELECT 1'"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # Sample Customer Database (SQL Server)
+  customer-db:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    container_name: etl-customer-db
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=YourStrong@Passw0rd
+      - MSSQL_PID=Developer
+    ports:
+      - "1434:1433"
+    volumes:
+      - customer-data:/var/opt/mssql
+      - ./sample-data/customer-db-init.sql:/docker-entrypoint-initdb.d/customer-db-init.sql
+    networks:
+      - etl-network
+
+  # Sample Order Database (MySQL)
+  order-db:
+    image: mysql:8.0
+    container_name: etl-order-db
+    environment:
+      - MYSQL_ROOT_PASSWORD=rootpassword
+      - MYSQL_DATABASE=OrderDB
+      - MYSQL_USER=etl_user
+      - MYSQL_PASSWORD=etl_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - order-data:/var/lib/mysql
+      - ./sample-data/order-db-init.sql:/docker-entrypoint-initdb.d/order-db-init.sql
+    networks:
+      - etl-network
+    command: --default-authentication-plugin=mysql_native_password
+
+  # Sample Product Database (PostgreSQL)
+  product-db:
+    image: postgres:13
+    container_name: etl-product-db
+    environment:
+      - POSTGRES_DB=ProductDB
+      - POSTGRES_USER=etl_user
+      - POSTGRES_PASSWORD=etl_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - product-data:/var/lib/postgresql/data
+      - ./sample-data/product-db-init.sql:/docker-entrypoint-initdb.d/product-db-init.sql
+    networks:
+      - etl-network
+
+  # Target Data Warehouse (SQL Server)
+  target-dw:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    container_name: etl-target-dw
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=YourStrong@Passw0rd
+      - MSSQL_PID=Developer
+    ports:
+      - "1435:1433"
+    volumes:
+      - target-data:/var/opt/mssql
+      - ./sample-data/target-dw-init.sql:/docker-entrypoint-initdb.d/target-dw-init.sql
+    networks:
+      - etl-network
+
+  # Spark Master
+  spark-master:
+    image: bitnami/spark:3.4.0
+    container_name: etl-spark-master
+    environment:
+      - SPARK_MODE=master
+      - SPARK_RPC_AUTHENTICATION_ENABLED=no
+      - SPARK_RPC_ENCRYPTION_ENABLED=no
+      - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
+      - SPARK_SSL_ENABLED=no
+    ports:
+      - "8080:8080"
+      - "7077:7077"
+    volumes:
+      - spark-master-data:/bitnami/spark
+      - ./spark-defaults.conf:/opt/bitnami/spark/conf/spark-defaults.conf
+    networks:
+      - etl-network
+
+  # Spark Worker 1
+  spark-worker-1:
+    image: bitnami/spark:3.4.0
+    container_name: etl-spark-worker-1
+    environment:
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://spark-master:7077
+      - SPARK_WORKER_MEMORY=8G
+      - SPARK_WORKER_CORES=4
+      - SPARK_RPC_AUTHENTICATION_ENABLED=no
+      - SPARK_RPC_ENCRYPTION_ENABLED=no
+      - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
+      - SPARK_SSL_ENABLED=no
+    volumes:
+      - spark-worker-1-data:/bitnami/spark
+      - ./spark-defaults.conf:/opt/bitnami/spark/conf/spark-defaults.conf
+    networks:
+      - etl-network
+    depends_on:
+      - spark-master
+
+  # Spark Worker 2
+  spark-worker-2:
+    image: bitnami/spark:3.4.0
+    container_name: etl-spark-worker-2
+    environment:
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://spark-master:7077
+      - SPARK_WORKER_MEMORY=8G
+      - SPARK_WORKER_CORES=4
+      - SPARK_RPC_AUTHENTICATION_ENABLED=no
+      - SPARK_RPC_ENCRYPTION_ENABLED=no
+      - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
+      - SPARK_SSL_ENABLED=no
+    volumes:
+      - spark-worker-2-data:/bitnami/spark
+      - ./spark-defaults.conf:/opt/bitnami/spark/conf/spark-defaults.conf
+    networks:
+      - etl-network
+    depends_on:
+      - spark-master
+
+  # ETL Application
+  etl-app:
+    build: .
+    container_name: etl-application
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - METADATA_CONNECTION_STRING=Server=metadata-db;Database=ETLMetadata;User Id=sa;Password=YourStrong@Passw0rd;TrustServerCertificate=true;
+      - SPARK_MASTER=spark://spark-master:7077
+    volumes:
+      - ./output:/app/output
+      - ./logs:/app/logs
+      - ./jars:/app/jars
+    networks:
+      - etl-network
+    depends_on:
+      metadata-db:
+        condition: service_healthy
+      spark-master:
+        condition: service_started
+    restart: unless-stopped
+
+  # Monitoring Dashboard (Optional)
+  monitoring:
+    image: grafana/grafana:latest
+    container_name: etl-monitoring
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    ports:
+      - "3000:3000"
+    volumes:
+      - monitoring-data:/var/lib/grafana
+      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources
+    networks:
+      - etl-network
+
+  # Log Aggregation (Optional)
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.0
+    container_name: etl-elasticsearch
+    environment:
+      - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+    networks:
+      - etl-network
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.17.0
+    container_name: etl-kibana
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    ports:
+      - "5601:5601"
+    networks:
+      - etl-network
+    depends_on:
+      - elasticsearch
+
+# Volumes
+volumes:
+  metadata-data:
+  customer-data:
+  order-data:
+  product-data:
+  target-data:
+  spark-master-data:
+  spark-worker-1-data:
+  spark-worker-2-data:
+  monitoring-data:
+  elasticsearch-data:
+
+# Networks
+networks:
+  etl-network:
+    driver: bridge

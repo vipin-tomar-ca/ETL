@@ -1,0 +1,8 @@
+/Users/vipintomar/AIApps/ETL-scalable/tests/ETL.Enterprise.UnitTests/bin/Release/net8.0/CoverletSourceRootsMapping_ETL.Enterprise.UnitTests
+/Users/vipintomar/AIApps/ETL-scalable/tests/ETL.Enterprise.UnitTests/obj/Release/net8.0/ETL.Enterprise.UnitTests.csproj.AssemblyReference.cache
+/Users/vipintomar/AIApps/ETL-scalable/tests/ETL.Enterprise.UnitTests/obj/Release/net8.0/ETL.Enterprise.UnitTests.GeneratedMSBuildEditorConfig.editorconfig
+/Users/vipintomar/AIApps/ETL-scalable/tests/ETL.Enterprise.UnitTests/obj/Release/net8.0/ETL.Enterprise.UnitTests.AssemblyInfoInputs.cache
+/Users/vipintomar/AIApps/ETL-scalable/tests/ETL.Enterprise.UnitTests/obj/Release/net8.0/ETL.Enterprise.UnitTests.AssemblyInfo.cs
+/Users/vipintomar/AIApps/ETL-scalable/tests/ETL.Enterprise.UnitTests/obj/Release/net8.0/ETL.Enterprise.UnitTests.csproj.CoreCompileInputs.cache
+/Users/vipintomar/AIApps/ETL-scalable/tests/ETL.Enterprise.UnitTests/obj/Release/net8.0/ETL.Enterprise.UnitTests.gentestingplatformentrypointinputcache.cache
+/Users/vipintomar/AIApps/ETL-scalable/tests/ETL.Enterprise.UnitTests/obj/Release/net8.0/ETL.Enterprise.UnitTests.genautoregisteredextensionsinputcache.cache

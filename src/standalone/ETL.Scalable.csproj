@@ -1,0 +1,53 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyName>ETL.Scalable</AssemblyName>
+    <RootNamespace>ETL.Scalable</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Microsoft.Spark for .NET - Core dependency -->
+    <PackageReference Include="Microsoft.Spark" Version="2.3.0" />
+    
+    <!-- Database connectivity packages -->
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="5.1.5" />
+    <PackageReference Include="MySql.Data" Version="8.3.0" />
+    <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="3.21.130" />
+    <PackageReference Include="Npgsql" Version="8.0.2" />
+    
+    <!-- Configuration and logging -->
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="7.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="7.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="7.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="7.0.0" />
+    
+    <!-- JSON handling -->
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    
+    <!-- Performance monitoring -->
+    <PackageReference Include="System.Diagnostics.PerformanceCounter" Version="7.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Copy JDBC drivers to output directory -->
+    <None Include="jars\*.jar" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <!-- Spark configuration -->
+    <SparkVersion>3.4.0</SparkVersion>
+    <HadoopVersion>3.3.4</HadoopVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Environment-specific configurations -->
+    <None Update="appsettings.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="appsettings.Development.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="appsettings.Production.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

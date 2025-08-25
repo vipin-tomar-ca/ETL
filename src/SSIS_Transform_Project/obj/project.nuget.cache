@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "+A77gSIMHVzFGXyT97SqEX4p/32r66A4qFxkgmPihjZ5Yu9fDoV/xbh1bWplT2y/UWW/vZjgaAppqGf+iTECBw==",
+  "success": true,
+  "projectFilePath": "/Users/vipintomar/AIApps/ETL-scalable/src/SSIS_Transform_Project/SSIS_Transform.csproj",
+  "expectedPackageFiles": [
+    "/Users/vipintomar/.nuget/packages/microsoft.netframework.referenceassemblies/1.0.3/microsoft.netframework.referenceassemblies.1.0.3.nupkg.sha512",
+    "/Users/vipintomar/.nuget/packages/microsoft.netframework.referenceassemblies.net472/1.0.3/microsoft.netframework.referenceassemblies.net472.1.0.3.nupkg.sha512"
+  ],
+  "logs": []
+}

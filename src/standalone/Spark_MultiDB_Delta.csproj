@@ -1,0 +1,163 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyName>Spark_MultiDB_Delta</AssemblyName>
+    <RootNamespace>ETL.Spark</RootNamespace>
+    <ApplicationIcon>spark.ico</ApplicationIcon>
+    <StartupObject>ETL.Spark.Program.SparkMultiDBDeltaProgram</StartupObject>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <Optimize>false</Optimize>
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>portable</DebugType>
+    <DebugSymbols>false</DebugSymbols>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Microsoft.Spark.NET -->
+    <PackageReference Include="Microsoft.Spark" Version="3.0.0" />
+    
+    <!-- .NET Extensions -->
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Configuration" Version="8.0.0" />
+    
+    <!-- Database -->
+    <PackageReference Include="System.Data.SqlClient" Version="4.8.6" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="5.1.4" />
+    
+    <!-- Health Checks -->
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.SqlServer" Version="8.0.0" />
+    
+    <!-- JSON -->
+    <PackageReference Include="System.Text.Json" Version="8.0.0" />
+    
+    <!-- Performance and Monitoring -->
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="8.0.0" />
+    
+    <!-- Testing -->
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" Condition="'$(Configuration)'=='Debug'" />
+    <PackageReference Include="xunit" Version="2.6.6" Condition="'$(Configuration)'=='Debug'" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.5.6" Condition="'$(Configuration)'=='Debug'" />
+    <PackageReference Include="Moq" Version="4.20.70" Condition="'$(Configuration)'=='Debug'" />
+    <PackageReference Include="FluentAssertions" Version="6.12.0" Condition="'$(Configuration)'=='Debug'" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Configuration Files -->
+    <None Include="..\..\config\spark_multidb_delta_appsettings.json">
+      <Link>appsettings.json</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\config\spark_multidb_delta_appsettings.Development.json" Condition="Exists('..\..\config\spark_multidb_delta_appsettings.Development.json')">
+      <Link>appsettings.Development.json</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\config\spark_multidb_delta_appsettings.Production.json" Condition="Exists('..\..\config\spark_multidb_delta_appsettings.Production.json')">
+      <Link>appsettings.Production.json</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Create logs directory -->
+    <None Include="logs\**" Condition="Exists('logs')">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <Target Name="CreateLogsDirectory" BeforeTargets="Build">
+    <MakeDir Directories="$(OutputPath)logs" />
+  </Target>
+
+  <Target Name="CopySparkJars" BeforeTargets="Build">
+    <!-- Copy Spark JAR files if they exist -->
+    <ItemGroup>
+      <SparkJars Include="$(MSBuildThisFileDirectory)jars\*.jar" />
+    </ItemGroup>
+    <Copy SourceFiles="@(SparkJars)" DestinationFolder="$(OutputPath)jars" Condition="Exists('$(MSBuildThisFileDirectory)jars')" />
+  </Target>
+
+  <Target Name="CopySparkConfig" BeforeTargets="Build">
+    <!-- Copy Spark configuration files -->
+    <ItemGroup>
+      <SparkConfig Include="$(MSBuildThisFileDirectory)spark\*.conf" />
+    </ItemGroup>
+    <Copy SourceFiles="@(SparkConfig)" DestinationFolder="$(OutputPath)spark" Condition="Exists('$(MSBuildThisFileDirectory)spark')" />
+  </Target>
+
+  <PropertyGroup>
+    <!-- Spark Configuration -->
+    <SparkHome Condition="'$(SparkHome)' == ''">$(MSBuildThisFileDirectory)spark</SparkHome>
+    <SparkMaster Condition="'$(SparkMaster)' == ''">local[*]</SparkMaster>
+    <SparkAppName Condition="'$(SparkAppName)' == ''">ETL-Spark-MultiDB-Delta</SparkAppName>
+    <SparkDriverMemory Condition="'$(SparkDriverMemory)' == ''">4g</SparkDriverMemory>
+    <SparkExecutorMemory Condition="'$(SparkExecutorMemory)' == ''">8g</SparkExecutorMemory>
+    <SparkExecutorCores Condition="'$(SparkExecutorCores)' == ''">4</SparkExecutorCores>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Assembly Information -->
+    <AssemblyAttribute Include="System.Reflection.AssemblyTitleAttribute">
+      <_Parameter1>Spark MultiDB Delta Processor</_Parameter1>
+    </AssemblyAttribute>
+    <AssemblyAttribute Include="System.Reflection.AssemblyDescriptionAttribute">
+      <_Parameter1>.NET Spark application for processing delta rows from CDC-enabled SQL Server databases</_Parameter1>
+    </AssemblyAttribute>
+    <AssemblyAttribute Include="System.Reflection.AssemblyCompanyAttribute">
+      <_Parameter1>ETL Enterprise</_Parameter1>
+    </AssemblyAttribute>
+    <AssemblyAttribute Include="System.Reflection.AssemblyProductAttribute">
+      <_Parameter1>ETL Spark MultiDB Delta</_Parameter1>
+    </AssemblyAttribute>
+    <AssemblyAttribute Include="System.Reflection.AssemblyCopyrightAttribute">
+      <_Parameter1>Copyright © 2024</_Parameter1>
+    </AssemblyAttribute>
+    <AssemblyAttribute Include="System.Reflection.AssemblyVersionAttribute">
+      <_Parameter1>1.0.0.0</_Parameter1>
+    </AssemblyAttribute>
+    <AssemblyAttribute Include="System.Reflection.AssemblyFileVersionAttribute">
+      <_Parameter1>1.0.0.0</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
+
+  <!-- Post-Build Events -->
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="echo Spark MultiDB Delta application built successfully" />
+    <Exec Command="echo Output directory: $(OutputPath)" />
+    <Exec Command="echo Spark configuration: $(SparkHome)" />
+  </Target>
+
+  <!-- Clean Target -->
+  <Target Name="CleanSparkArtifacts" AfterTargets="Clean">
+    <RemoveDir Directories="$(OutputPath)logs" />
+    <RemoveDir Directories="$(OutputPath)jars" />
+    <RemoveDir Directories="$(OutputPath)spark" />
+    <RemoveDir Directories="$(OutputPath)checkpoints" />
+    <RemoveDir Directories="$(OutputPath)temp" />
+  </Target>
+
+</Project>

@@ -1,0 +1,460 @@
+<?xml version="1.0"?>
+<DTS:Executable xmlns:DTS="www.microsoft.com/SqlServer/Dts" 
+                DTS:ExecutableType="Microsoft.Package" 
+                DTS:VersionBuild="0" 
+                DTS:VersionGUID="{12345678-1234-1234-1234-123456789012}" 
+                DTS:CreationName="Microsoft.Package" 
+                DTS:CreationDate="2024-01-01T00:00:00.000Z" 
+                DTS:CreatorComputerName="ETL-SERVER" 
+                DTS:CreatorName="ETL-Admin" 
+                DTS:DTSID="{87654321-4321-4321-4321-210987654321}" 
+                DTS:ObjectName="Extract_Delta" 
+                DTS:PackageType="5" 
+                DTS:VersionMajor="1" 
+                DTS:VersionMinor="0">
+  <DTS:ConnectionManagers>
+    <!-- Metadata Database Connection -->
+    <DTS:ConnectionManager DTS:ConnectionString="Data Source=ETL-SERVER;Initial Catalog=ETLMetadata;Integrated Security=SSPI;Application Name=SSIS_Extract_Delta;" 
+                          DTS:CreationName="OLEDB" 
+                          DTS:DTSID="{11111111-1111-1111-1111-111111111111}" 
+                          DTS:ObjectName="MetadataDB">
+      <DTS:ObjectData>
+        <DTS:ConnectionManager DTS:ConnectionString="Data Source=ETL-SERVER;Initial Catalog=ETLMetadata;Integrated Security=SSPI;Application Name=SSIS_Extract_Delta;" />
+      </DTS:ObjectData>
+    </DTS:ConnectionManager>
+    
+    <!-- Staging Database Connection -->
+    <DTS:ConnectionManager DTS:ConnectionString="Data Source=ETL-SERVER;Initial Catalog=ETLStaging;Integrated Security=SSPI;Application Name=SSIS_Extract_Delta;" 
+                          DTS:CreationName="OLEDB" 
+                          DTS:DTSID="{22222222-2222-2222-2222-222222222222}" 
+                          DTS:ObjectName="StagingDB">
+      <DTS:ObjectData>
+        <DTS:ConnectionManager DTS:ConnectionString="Data Source=ETL-SERVER;Initial Catalog=ETLStaging;Integrated Security=SSPI;Application Name=SSIS_Extract_Delta;" />
+      </DTS:ObjectData>
+    </DTS:ConnectionManager>
+    
+    <!-- File System Connection for Parquet Files -->
+    <DTS:ConnectionManager DTS:ConnectionString="C:\ETL\Staging\Parquet\" 
+                          DTS:CreationName="FILE" 
+                          DTS:DTSID="{33333333-3333-3333-3333-333333333333}" 
+                          DTS:ObjectName="ParquetFileSystem">
+      <DTS:ObjectData>
+        <DTS:ConnectionManager DTS:ConnectionString="C:\ETL\Staging\Parquet\" />
+      </DTS:ObjectData>
+    </DTS:ConnectionManager>
+  </DTS:ConnectionManagers>
+  
+  <DTS:Variables>
+    <!-- Package Variables -->
+    <DTS:Variable DTS:DataType="3" DTS:DTSID="{44444444-4444-4444-4444-444444444444}" DTS:ObjectName="CurrentDatabaseName" DTS:Value=""/>
+    <DTS:Variable DTS:DataType="3" DTS:DTSID="{55555555-5555-5555-5555-555555555555}" DTS:ObjectName="CurrentConnectionString" DTS:Value=""/>
+    <DTS:Variable DTS:DataType="3" DTS:DTSID="{66666666-6666-6666-6666-666666666666}" DTS:ObjectName="IsCDCEnabled" DTS:Value=""/>
+    <DTS:Variable DTS:DataType="3" DTS:DTSID="{77777777-7777-7777-7777-777777777777}" DTS:ObjectName="LastProcessedLSN" DTS:Value=""/>
+    <DTS:Variable DTS:DataType="3" DTS:DTSID="{88888888-8888-8888-8888-888888888888}" DTS:ObjectName="DeltaCondition" DTS:Value=""/>
+    <DTS:Variable DTS:DataType="3" DTS:DTSID="{99999999-9999-9999-9999-999999999999}" DTS:ObjectName="LastRunTimestamp" DTS:Value=""/>
+    <DTS:Variable DTS:DataType="3" DTS:DTSID="{AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAA}" DTS:ObjectName="TableName" DTS:Value=""/>
+    <DTS:Variable DTS:DataType="3" DTS:DTSID="{BBBBBBBB-BBBB-BBBB-BBBB-BBBBBBBBBBBB}" DTS:ObjectName="SchemaName" DTS:Value=""/>
+    <DTS:Variable DTS:DataType="3" DTS:DTSID="{CCCCCCCC-CCCC-CCCC-CCCC-CCCCCCCCCCCC}" DTS:ObjectName="StagingTableName" DTS:Value=""/>
+    <DTS:Variable DTS:DataType="3" DTS:DTSID="{DDDDDDDD-DDDD-DDDD-DDDD-DDDDDDDDDDDD}" DTS:ObjectName="ParquetFileName" DTS:Value=""/>
+    <DTS:Variable DTS:DataType="3" DTS:DTSID="{EEEEEEEE-EEEE-EEEE-EEEE-EEEEEEEEEEEE}" DTS:ObjectName="ProcessingEngine" DTS:Value=""/>
+    <DTS:Variable DTS:DataType="3" DTS:DTSID="{FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF}" DTS:ObjectName="BatchID" DTS:Value=""/>
+    <DTS:Variable DTS:DataType="3" DTS:DTSID="{11111112-1111-1111-1111-111111111111}" DTS:ObjectName="ErrorMessage" DTS:Value=""/>
+    <DTS:Variable DTS:DataType="3" DTS:DTSID="{11111113-1111-1111-1111-111111111111}" DTS:ObjectName="RecordsProcessed" DTS:Value="0"/>
+    <DTS:Variable DTS:DataType="3" DTS:DTSID="{11111114-1111-1111-1111-111111111111}" DTS:ObjectName="RecordsFailed" DTS:Value="0"/>
+  </DTS:Variables>
+  
+  <DTS:Executables>
+    <!-- Main Sequence Container -->
+    <DTS:Executable DTS:ExecutableType="Microsoft.Sequence" 
+                    DTS:CreationName="Microsoft.Sequence" 
+                    DTS:DTSID="{22222223-2222-2222-2222-222222222222}" 
+                    DTS:ObjectName="Main Sequence">
+      <DTS:Variables/>
+      <DTS:ObjectData>
+        <DTS:Sequence>
+          <DTS:Executables>
+            
+            <!-- Initialize Package -->
+            <DTS:Executable DTS:ExecutableType="Microsoft.ScriptTask" 
+                           DTS:CreationName="Microsoft.ScriptTask" 
+                           DTS:DTSID="{33333334-3333-3333-3333-333333333333}" 
+                           DTS:ObjectName="Initialize Package">
+              <DTS:Variables/>
+              <DTS:ObjectData>
+                <DTS:ScriptTask DTS:ScriptLanguage="VisualBasic">
+                  <DTS:Script>
+                    ' Initialize package variables
+                    Dts.Variables("BatchID").Value = Guid.NewGuid().ToString()
+                    Dts.Variables("ProcessingEngine").Value = "SSIS"
+                    
+                    ' Log package start
+                    Dim logMessage As String = "Package Extract_Delta started. BatchID: " & Dts.Variables("BatchID").Value.ToString()
+                    Dts.Log(logMessage, 0, Nothing)
+                  </DTS:Script>
+                </DTS:ScriptTask>
+              </DTS:ObjectData>
+            </DTS:Executable>
+            
+            <!-- Get Database List -->
+            <DTS:Executable DTS:ExecutableType="Microsoft.ScriptTask" 
+                           DTS:CreationName="Microsoft.ScriptTask" 
+                           DTS:DTSID="{44444445-4444-4444-4444-444444444444}" 
+                           DTS:ObjectName="Get Database List">
+              <DTS:Variables/>
+              <DTS:ObjectData>
+                <DTS:ScriptTask DTS:ScriptLanguage="VisualBasic">
+                  <DTS:Script>
+                    ' Query metadata database to get list of databases to process
+                    Dim connectionString As String = Dts.Connections("MetadataDB").ConnectionString
+                    Dim query As String = "SELECT DatabaseName, ConnectionString, IsCDCEnabled, LastProcessedLSN, DeltaCondition, TableName, SchemaName, StagingTableName, ProcessingEngine FROM Connections WHERE IsActive = 1"
+                    
+                    ' Store results in a dataset for Foreach Loop
+                    Dim dt As New DataTable()
+                    ' Execute query and populate dt
+                    Dts.Variables("DatabaseList").Value = dt
+                  </DTS:Script>
+                </DTS:ScriptTask>
+              </DTS:ObjectData>
+            </DTS:Executable>
+            
+            <!-- Foreach Loop Container for Database Processing -->
+            <DTS:Executable DTS:ExecutableType="Microsoft.ForEachLoop" 
+                           DTS:CreationName="Microsoft.ForEachLoop" 
+                           DTS:DTSID="{55555556-5555-5555-5555-555555555555}" 
+                           DTS:ObjectName="Foreach Database">
+              <DTS:Variables/>
+              <DTS:ObjectData>
+                <DTS:ForEachLoop DTS:CollectionType="ADO" DTS:CollectionName="DatabaseList">
+                  <DTS:Executables>
+                    
+                    <!-- Set Current Database Variables -->
+                    <DTS:Executable DTS:ExecutableType="Microsoft.ScriptTask" 
+                                   DTS:CreationName="Microsoft.ScriptTask" 
+                                   DTS:DTSID="{66666667-6666-6666-6666-666666666666}" 
+                                   DTS:ObjectName="Set Current Database Variables">
+                      <DTS:Variables/>
+                      <DTS:ObjectData>
+                        <DTS:ScriptTask DTS:ScriptLanguage="VisualBasic">
+                          <DTS:Script>
+                            ' Set variables for current database
+                            Dim row As DataRow = Dts.Variables("CurrentRow").Value
+                            Dts.Variables("CurrentDatabaseName").Value = row("DatabaseName").ToString()
+                            Dts.Variables("CurrentConnectionString").Value = row("ConnectionString").ToString()
+                            Dts.Variables("IsCDCEnabled").Value = Convert.ToBoolean(row("IsCDCEnabled"))
+                            Dts.Variables("LastProcessedLSN").Value = row("LastProcessedLSN").ToString()
+                            Dts.Variables("DeltaCondition").Value = row("DeltaCondition").ToString()
+                            Dts.Variables("TableName").Value = row("TableName").ToString()
+                            Dts.Variables("SchemaName").Value = row("SchemaName").ToString()
+                            Dts.Variables("StagingTableName").Value = row("StagingTableName").ToString()
+                            Dts.Variables("ProcessingEngine").Value = row("ProcessingEngine").ToString()
+                            
+                            ' Generate Parquet filename
+                            Dts.Variables("ParquetFileName").Value = Dts.Variables("CurrentDatabaseName").Value.ToString() & "_" & Dts.Variables("TableName").Value.ToString() & "_" & DateTime.Now.ToString("yyyyMMdd_HHmmss") & ".parquet"
+                          </DTS:Script>
+                        </DTS:ScriptTask>
+                      </DTS:ObjectData>
+                    </DTS:Executable>
+                    
+                    <!-- CDC Enabled Database Processing -->
+                    <DTS:Executable DTS:ExecutableType="Microsoft.Sequence" 
+                                   DTS:CreationName="Microsoft.Sequence" 
+                                   DTS:DTSID="{77777778-7777-7777-7777-777777777777}" 
+                                   DTS:ObjectName="CDC Processing">
+                      <DTS:Variables/>
+                      <DTS:ObjectData>
+                        <DTS:Sequence>
+                          <DTS:Executables>
+                            
+                            <!-- CDC Source Component -->
+                            <DTS:Executable DTS:ExecutableType="Microsoft.PipelineTask" 
+                                           DTS:CreationName="Microsoft.PipelineTask" 
+                                           DTS:DTSID="{88888889-8888-8888-8888-888888888888}" 
+                                           DTS:ObjectName="CDC Source">
+                              <DTS:Variables/>
+                              <DTS:ObjectData>
+                                <DTS:PipelineTask DTS:TaskName="CDC Source">
+                                  <DTS:PipelineComponents>
+                                    <!-- CDC Source Component -->
+                                    <DTS:PipelineComponent DTS:ComponentType="CDC_SOURCE" DTS:ComponentName="CDC Source">
+                                      <DTS:ObjectData>
+                                        <DTS:CDC_SOURCE>
+                                          <DTS:ConnectionString>@[User::CurrentConnectionString]</DTS:ConnectionString>
+                                          <DTS:CDCEnabled>@[User::IsCDCEnabled]</DTS:CDCEnabled>
+                                          <DTS:CaptureInstance>@[User::SchemaName]_@[User::TableName]</DTS:CaptureInstance>
+                                          <DTS:FromLSN>@[User::LastProcessedLSN]</DTS:FromLSN>
+                                          <DTS:ToLSN>NULL</DTS:ToLSN>
+                                          <DTS:CDCProcessingMode>All</DTS:CDCProcessingMode>
+                                          <DTS:NetChanges>False</DTS:NetChanges>
+                                        </DTS:CDC_SOURCE>
+                                      </DTS:ObjectData>
+                                    </DTS:PipelineComponent>
+                                    
+                                    <!-- Conditional Split for Processing Engine -->
+                                    <DTS:PipelineComponent DTS:ComponentType="CONDITIONAL_SPLIT" DTS:ComponentName="Processing Engine Split">
+                                      <DTS:ObjectData>
+                                        <DTS:CONDITIONAL_SPLIT>
+                                          <DTS:OutputPath DTS:OutputPathName="Spark">
+                                            <DTS:Condition>@[User::ProcessingEngine] == "Spark"</DTS:Condition>
+                                          </DTS:OutputPath>
+                                          <DTS:OutputPath DTS:OutputPathName="CSharp">
+                                            <DTS:Condition>@[User::ProcessingEngine] == "CSharp"</DTS:Condition>
+                                          </DTS:OutputPath>
+                                        </DTS:CONDITIONAL_SPLIT>
+                                      </DTS:ObjectData>
+                                    </DTS:PipelineComponent>
+                                    
+                                    <!-- Parquet Destination for Spark -->
+                                    <DTS:PipelineComponent DTS:ComponentType="PARQUET_DESTINATION" DTS:ComponentName="Parquet Destination">
+                                      <DTS:ObjectData>
+                                        <DTS:PARQUET_DESTINATION>
+                                          <DTS:FilePath>@[User::ParquetFileName]</DTS:FilePath>
+                                          <DTS:CompressionType>Snappy</DTS:CompressionType>
+                                          <DTS:RowGroupSize>100000</DTS:RowGroupSize>
+                                        </DTS:PARQUET_DESTINATION>
+                                      </DTS:ObjectData>
+                                    </DTS:PipelineComponent>
+                                    
+                                    <!-- SQL Server Destination for C# -->
+                                    <DTS:PipelineComponent DTS:ComponentType="OLEDB_DESTINATION" DTS:ComponentName="SQL Server Destination">
+                                      <DTS:ObjectData>
+                                        <DTS:OLEDB_DESTINATION>
+                                          <DTS:ConnectionString>@[User::StagingDB]</DTS:ConnectionString>
+                                          <DTS:TableName>@[User::StagingTableName]</DTS:TableName>
+                                          <DTS:FastLoad>True</DTS:FastLoad>
+                                          <DTS:FastLoadMaxInsertCommitSize>10000</DTS:FastLoadMaxInsertCommitSize>
+                                        </DTS:OLEDB_DESTINATION>
+                                      </DTS:ObjectData>
+                                    </DTS:PipelineComponent>
+                                  </DTS:PipelineComponents>
+                                </DTS:PipelineTask>
+                              </DTS:ObjectData>
+                            </DTS:Executable>
+                            
+                            <!-- Update LastProcessedLSN -->
+                            <DTS:Executable DTS:ExecutableType="Microsoft.ScriptTask" 
+                                           DTS:CreationName="Microsoft.ScriptTask" 
+                                           DTS:DTSID="{99999990-9999-9999-9999-999999999999}" 
+                                           DTS:ObjectName="Update LastProcessedLSN">
+                              <DTS:Variables/>
+                              <DTS:ObjectData>
+                                <DTS:ScriptTask DTS:ScriptLanguage="VisualBasic">
+                                  <DTS:Script>
+                                    ' Update LastProcessedLSN in metadata database
+                                    Dim connectionString As String = Dts.Connections("MetadataDB").ConnectionString
+                                    Dim updateQuery As String = "UPDATE Connections SET LastProcessedLSN = @NewLSN, LastUpdated = GETDATE() WHERE DatabaseName = @DatabaseName"
+                                    
+                                    ' Execute update query with new LSN
+                                    ' Get the last LSN from CDC processing
+                                    Dim newLSN As String = Dts.Variables("CurrentLSN").Value.ToString()
+                                    
+                                    ' Log the update
+                                    Dim logMessage As String = "Updated LastProcessedLSN for database " & Dts.Variables("CurrentDatabaseName").Value.ToString() & " to " & newLSN
+                                    Dts.Log(logMessage, 0, Nothing)
+                                  </DTS:Script>
+                                </DTS:ScriptTask>
+                              </DTS:ObjectData>
+                            </DTS:Executable>
+                            
+                          </DTS:Executables>
+                        </DTS:Sequence>
+                      </DTS:ObjectData>
+                    </DTS:Executable>
+                    
+                    <!-- Non-CDC Database Processing -->
+                    <DTS:Executable DTS:ExecutableType="Microsoft.Sequence" 
+                                   DTS:CreationName="Microsoft.Sequence" 
+                                   DTS:DTSID="{AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAA}" 
+                                   DTS:ObjectName="Non-CDC Processing">
+                      <DTS:Variables/>
+                      <DTS:ObjectData>
+                        <DTS:Sequence>
+                          <DTS:Executables>
+                            
+                            <!-- OLE DB Source with Timestamp-based Delta -->
+                            <DTS:Executable DTS:ExecutableType="Microsoft.PipelineTask" 
+                                           DTS:CreationName="Microsoft.PipelineTask" 
+                                           DTS:DTSID="{BBBBBBBB-BBBB-BBBB-BBBB-BBBBBBBBBBBB}" 
+                                           DTS:ObjectName="OLE DB Source">
+                              <DTS:Variables/>
+                              <DTS:ObjectData>
+                                <DTS:PipelineTask DTS:TaskName="OLE DB Source">
+                                  <DTS:PipelineComponents>
+                                    <!-- OLE DB Source Component -->
+                                    <DTS:PipelineComponent DTS:ComponentType="OLEDB_SOURCE" DTS:ComponentName="OLE DB Source">
+                                      <DTS:ObjectData>
+                                        <DTS:OLEDB_SOURCE>
+                                          <DTS:ConnectionString>@[User::CurrentConnectionString]</DTS:ConnectionString>
+                                          <DTS:SQLCommand>
+                                            SELECT * FROM @[User::SchemaName].@[User::TableName] 
+                                            WHERE @[User::DeltaCondition] > @[User::LastRunTimestamp]
+                                          </DTS:SQLCommand>
+                                          <DTS:Parameters>
+                                            <DTS:Parameter DTS:ParameterName="@LastRunTimestamp" DTS:ParameterValue="@[User::LastRunTimestamp]" />
+                                          </DTS:Parameters>
+                                        </DTS:OLEDB_SOURCE>
+                                      </DTS:ObjectData>
+                                    </DTS:PipelineComponent>
+                                    
+                                    <!-- Same destination logic as CDC processing -->
+                                    <DTS:PipelineComponent DTS:ComponentType="CONDITIONAL_SPLIT" DTS:ComponentName="Processing Engine Split">
+                                      <DTS:ObjectData>
+                                        <DTS:CONDITIONAL_SPLIT>
+                                          <DTS:OutputPath DTS:OutputPathName="Spark">
+                                            <DTS:Condition>@[User::ProcessingEngine] == "Spark"</DTS:Condition>
+                                          </DTS:OutputPath>
+                                          <DTS:OutputPath DTS:OutputPathName="CSharp">
+                                            <DTS:Condition>@[User::ProcessingEngine] == "CSharp"</DTS:Condition>
+                                          </DTS:OutputPath>
+                                        </DTS:CONDITIONAL_SPLIT>
+                                      </DTS:ObjectData>
+                                    </DTS:PipelineComponent>
+                                    
+                                    <!-- Parquet Destination for Spark -->
+                                    <DTS:PipelineComponent DTS:ComponentType="PARQUET_DESTINATION" DTS:ComponentName="Parquet Destination">
+                                      <DTS:ObjectData>
+                                        <DTS:PARQUET_DESTINATION>
+                                          <DTS:FilePath>@[User::ParquetFileName]</DTS:FilePath>
+                                          <DTS:CompressionType>Snappy</DTS:CompressionType>
+                                          <DTS:RowGroupSize>100000</DTS:RowGroupSize>
+                                        </DTS:PARQUET_DESTINATION>
+                                      </DTS:ObjectData>
+                                    </DTS:PipelineComponent>
+                                    
+                                    <!-- SQL Server Destination for C# -->
+                                    <DTS:PipelineComponent DTS:ComponentType="OLEDB_DESTINATION" DTS:ComponentName="SQL Server Destination">
+                                      <DTS:ObjectData>
+                                        <DTS:OLEDB_DESTINATION>
+                                          <DTS:ConnectionString>@[User::StagingDB]</DTS:ConnectionString>
+                                          <DTS:TableName>@[User::StagingTableName]</DTS:TableName>
+                                          <DTS:FastLoad>True</DTS:FastLoad>
+                                          <DTS:FastLoadMaxInsertCommitSize>10000</DTS:FastLoadMaxInsertCommitSize>
+                                        </DTS:OLEDB_DESTINATION>
+                                      </DTS:ObjectData>
+                                    </DTS:PipelineComponent>
+                                  </DTS:PipelineComponents>
+                                </DTS:PipelineTask>
+                              </DTS:ObjectData>
+                            </DTS:Executable>
+                            
+                            <!-- Update LastRunTimestamp -->
+                            <DTS:Executable DTS:ExecutableType="Microsoft.ScriptTask" 
+                                           DTS:CreationName="Microsoft.ScriptTask" 
+                                           DTS:DTSID="{CCCCCCCC-CCCC-CCCC-CCCC-CCCCCCCCCCCC}" 
+                                           DTS:ObjectName="Update LastRunTimestamp">
+                              <DTS:Variables/>
+                              <DTS:ObjectData>
+                                <DTS:ScriptTask DTS:ScriptLanguage="VisualBasic">
+                                  <DTS:Script>
+                                    ' Update LastRunTimestamp in metadata database
+                                    Dim connectionString As String = Dts.Connections("MetadataDB").ConnectionString
+                                    Dim updateQuery As String = "UPDATE Connections SET LastRunTimestamp = GETDATE(), LastUpdated = GETDATE() WHERE DatabaseName = @DatabaseName"
+                                    
+                                    ' Execute update query
+                                    ' Log the update
+                                    Dim logMessage As String = "Updated LastRunTimestamp for database " & Dts.Variables("CurrentDatabaseName").Value.ToString()
+                                    Dts.Log(logMessage, 0, Nothing)
+                                  </DTS:Script>
+                                </DTS:ScriptTask>
+                              </DTS:ObjectData>
+                            </DTS:Executable>
+                            
+                          </DTS:Executables>
+                        </DTS:Sequence>
+                      </DTS:ObjectData>
+                    </DTS:Executable>
+                    
+                  </DTS:Executables>
+                </DTS:ForEachLoop>
+              </DTS:ObjectData>
+            </DTS:Executable>
+            
+            <!-- Finalize Package -->
+            <DTS:Executable DTS:ExecutableType="Microsoft.ScriptTask" 
+                           DTS:CreationName="Microsoft.ScriptTask" 
+                           DTS:DTSID="{DDDDDDDD-DDDD-DDDD-DDDD-DDDDDDDDDDDD}" 
+                           DTS:ObjectName="Finalize Package">
+              <DTS:Variables/>
+              <DTS:ObjectData>
+                <DTS:ScriptTask DTS:ScriptLanguage="VisualBasic">
+                  <DTS:Script>
+                    ' Log package completion
+                    Dim logMessage As String = "Package Extract_Delta completed successfully. BatchID: " & Dts.Variables("BatchID").Value.ToString()
+                    Dts.Log(logMessage, 0, Nothing)
+                    
+                    ' Log final statistics
+                    Dim statsMessage As String = "Records Processed: " & Dts.Variables("RecordsProcessed").Value.ToString() & ", Records Failed: " & Dts.Variables("RecordsFailed").Value.ToString()
+                    Dts.Log(statsMessage, 0, Nothing)
+                  </DTS:Script>
+                </DTS:ScriptTask>
+              </DTS:ObjectData>
+            </DTS:Executable>
+            
+          </DTS:Executables>
+        </DTS:Sequence>
+      </DTS:ObjectData>
+    </DTS:Executable>
+  </DTS:Executables>
+  
+  <!-- Event Handlers for Error Handling -->
+  <DTS:EventHandlers>
+    <DTS:EventHandler DTS:EventName="OnError" DTS:DTSID="{EEEEEEEE-EEEE-EEEE-EEEE-EEEEEEEEEEEE}">
+      <DTS:Variables/>
+      <DTS:Executables>
+        <DTS:Executable DTS:ExecutableType="Microsoft.ScriptTask" 
+                       DTS:CreationName="Microsoft.ScriptTask" 
+                       DTS:DTSID="{FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF}" 
+                       DTS:ObjectName="Log Error">
+          <DTS:Variables/>
+          <DTS:ObjectData>
+            <DTS:ScriptTask DTS:ScriptLanguage="VisualBasic">
+              <DTS:Script>
+                ' Log error to database
+                Dim errorMessage As String = "Error in package Extract_Delta: " & Dts.Variables("System::ErrorDescription").Value.ToString()
+                Dim connectionString As String = Dts.Connections("MetadataDB").ConnectionString
+                
+                Dim insertQuery As String = "INSERT INTO Logs (BatchID, DatabaseName, ErrorMessage, ErrorCode, ErrorSource, CreatedDate) VALUES (@BatchID, @DatabaseName, @ErrorMessage, @ErrorCode, @ErrorSource, GETDATE())"
+                
+                ' Execute insert query
+                Dts.Variables("RecordsFailed").Value = Convert.ToInt32(Dts.Variables("RecordsFailed").Value) + 1
+                
+                ' Log to SSIS log
+                Dts.Log(errorMessage, 0, Nothing)
+              </DTS:Script>
+            </DTS:ScriptTask>
+          </DTS:ObjectData>
+        </DTS:Executable>
+      </DTS:Executables>
+    </DTS:EventHandler>
+    
+    <DTS:EventHandler DTS:EventName="OnWarning" DTS:DTSID="{11111115-1111-1111-1111-111111111111}">
+      <DTS:Variables/>
+      <DTS:Executables>
+        <DTS:Executable DTS:ExecutableType="Microsoft.ScriptTask" 
+                       DTS:CreationName="Microsoft.ScriptTask" 
+                       DTS:DTSID="{11111116-1111-1111-1111-111111111111}" 
+                       DTS:ObjectName="Log Warning">
+          <DTS:Variables/>
+          <DTS:ObjectData>
+            <DTS:ScriptTask DTS:ScriptLanguage="VisualBasic">
+              <DTS:Script>
+                ' Log warning
+                Dim warningMessage As String = "Warning in package Extract_Delta: " & Dts.Variables("System::WarningDescription").Value.ToString()
+                Dts.Log(warningMessage, 0, Nothing)
+              </DTS:Script>
+            </DTS:ScriptTask>
+          </DTS:ObjectData>
+        </DTS:Executable>
+      </DTS:Executables>
+    </DTS:EventHandler>
+  </DTS:EventHandlers>
+  
+  <!-- Package Properties for Optimization -->
+  <DTS:Properties>
+    <DTS:Property DTS:Name="MaxConcurrentExecutables">4</DTS:Property>
+    <DTS:Property DTS:Name="EngineThreads">4</DTS:Property>
+    <DTS:Property DTS:Name="BufferTempStoragePath">C:\ETL\Temp</DTS:Property>
+    <DTS:Property DTS:Name="BufferSize">10485760</DTS:Property>
+    <DTS:Property DTS:Name="DefaultBufferMaxRows">10000</DTS:Property>
+  </DTS:Properties>
+  
+</DTS:Executable>

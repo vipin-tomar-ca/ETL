@@ -1,0 +1,146 @@
+{
+  "format": 1,
+  "restore": {
+    "/Users/vipintomar/AIApps/ETL-scalable/src/ETL.Enterprise.Application/ETL.Enterprise.Application.csproj": {}
+  },
+  "projects": {
+    "/Users/vipintomar/AIApps/ETL-scalable/src/ETL.Enterprise.Application/ETL.Enterprise.Application.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/Users/vipintomar/AIApps/ETL-scalable/src/ETL.Enterprise.Application/ETL.Enterprise.Application.csproj",
+        "projectName": "ETL.Enterprise.Application",
+        "projectPath": "/Users/vipintomar/AIApps/ETL-scalable/src/ETL.Enterprise.Application/ETL.Enterprise.Application.csproj",
+        "packagesPath": "/Users/vipintomar/.nuget/packages/",
+        "outputPath": "/Users/vipintomar/AIApps/ETL-scalable/src/ETL.Enterprise.Application/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/Users/vipintomar/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "/Users/vipintomar/AIApps/ETL-scalable/src/ETL.Enterprise.Domain/ETL.Enterprise.Domain.csproj": {
+                "projectPath": "/Users/vipintomar/AIApps/ETL-scalable/src/ETL.Enterprise.Domain/ETL.Enterprise.Domain.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "dependencies": {
+            "AutoMapper": {
+              "target": "Package",
+              "version": "[12.0.1, )"
+            },
+            "FluentValidation": {
+              "target": "Package",
+              "version": "[11.8.1, )"
+            },
+            "MediatR": {
+              "target": "Package",
+              "version": "[12.2.0, )"
+            },
+            "Microsoft.Extensions.DependencyInjection.Abstractions": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "Microsoft.Extensions.Logging.Abstractions": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/opt/homebrew/Cellar/dotnet@8/8.0.15/libexec/sdk/8.0.115/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "/Users/vipintomar/AIApps/ETL-scalable/src/ETL.Enterprise.Domain/ETL.Enterprise.Domain.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/Users/vipintomar/AIApps/ETL-scalable/src/ETL.Enterprise.Domain/ETL.Enterprise.Domain.csproj",
+        "projectName": "ETL.Enterprise.Domain",
+        "projectPath": "/Users/vipintomar/AIApps/ETL-scalable/src/ETL.Enterprise.Domain/ETL.Enterprise.Domain.csproj",
+        "packagesPath": "/Users/vipintomar/.nuget/packages/",
+        "outputPath": "/Users/vipintomar/AIApps/ETL-scalable/src/ETL.Enterprise.Domain/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/Users/vipintomar/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "dependencies": {
+            "Microsoft.Extensions.Logging.Abstractions": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/opt/homebrew/Cellar/dotnet@8/8.0.15/libexec/sdk/8.0.115/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}

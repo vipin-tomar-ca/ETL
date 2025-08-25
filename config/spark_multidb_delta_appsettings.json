@@ -1,0 +1,235 @@
+{
+  "ConnectionStrings": {
+    "MetadataDB": "Data Source=ETL-SERVER;Initial Catalog=ETLMetadata;Integrated Security=SSPI;Application Name=Spark_MultiDB_Delta;",
+    "TargetDB": "Data Source=ETL-SERVER;Initial Catalog=ETLTarget;Integrated Security=SSPI;Application Name=Spark_MultiDB_Delta;"
+  },
+  "Spark": {
+    "Master": "spark://spark-master:7077",
+    "AppName": "ETL-Spark-MultiDB-Delta",
+    "DriverMemory": "4g",
+    "ExecutorMemory": "8g",
+    "ExecutorCores": "4",
+    "NumExecutors": "10",
+    "MaxExecutors": "20",
+    "ExecutorInstances": "10",
+    "DynamicAllocation": {
+      "Enabled": true,
+      "MinExecutors": "5",
+      "MaxExecutors": "20",
+      "InitialExecutors": "10"
+    },
+    "SQL": {
+      "AdaptiveEnabled": true,
+      "AdaptiveCoalescePartitionsEnabled": true,
+      "AdaptiveSkewJoinEnabled": true,
+      "AdaptiveLocalShuffleReaderEnabled": true,
+      "AdaptiveAdvisoryPartitionSizeInBytes": "128m",
+      "AdaptiveMinNumPostShufflePartitions": 10,
+      "AdaptiveMaxNumPostShufflePartitions": 200,
+      "ShufflePartitions": 200,
+      "AdaptiveSkewJoinSkewedPartitionThresholdInBytes": "256m",
+      "AdaptiveSkewJoinSkewedPartitionFactor": 5
+    },
+    "JDBC": {
+      "BatchSize": 10000,
+      "QueryTimeout": 300,
+      "FetchSize": 10000,
+      "IsolationLevel": "READ_COMMITTED",
+      "SessionInitStatement": "SET ARITHABORT ON; SET NUMERIC_ROUNDABORT OFF; SET ANSI_PADDING ON; SET ANSI_WARNINGS ON; SET CONCAT_NULL_YIELDS_NULL ON; SET ANSI_NULLS ON; SET QUOTED_IDENTIFIER ON; SET ANSI_NULL_DFLT_ON ON;"
+    }
+  },
+  "Processing": {
+    "BatchSize": 10000,
+    "TimeoutMinutes": 30,
+    "MaxRetries": 3,
+    "RetryDelaySeconds": 60,
+    "ParallelProcessing": true,
+    "MaxConcurrentDatabases": 5,
+    "CDC": {
+      "DefaultRetentionHours": 24,
+      "LSNValidationEnabled": true,
+      "NetChangesEnabled": true,
+      "CaptureInstanceValidationEnabled": true
+    },
+    "Timestamp": {
+      "DefaultLookbackHours": 24,
+      "TimeZone": "UTC",
+      "DateFormat": "yyyy-MM-dd HH:mm:ss"
+    }
+  },
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft": "Warning",
+      "Microsoft.Hosting.Lifetime": "Information",
+      "ETL.Spark": "Information"
+    },
+    "Console": {
+      "IncludeScopes": true,
+      "TimestampFormat": "yyyy-MM-dd HH:mm:ss "
+    },
+    "File": {
+      "Path": "logs/spark_multidb_delta.log",
+      "Append": true,
+      "FileSizeLimitBytes": 10485760,
+      "MaxRollingFiles": 10
+    }
+  },
+  "Monitoring": {
+    "MetricsEnabled": true,
+    "HealthCheckIntervalSeconds": 30,
+    "PerformanceMonitoring": {
+      "Enabled": true,
+      "CollectSparkMetrics": true,
+      "CollectDatabaseMetrics": true,
+      "MetricsRetentionDays": 30
+    },
+    "Alerting": {
+      "Enabled": true,
+      "ErrorThreshold": 5,
+      "PerformanceThresholdSeconds": 300,
+      "NotificationChannels": ["console", "file"]
+    }
+  },
+  "Security": {
+    "Authentication": {
+      "Type": "Integrated",
+      "KerberosEnabled": false,
+      "SSLEnabled": true
+    },
+    "Encryption": {
+      "ConnectionEncryption": true,
+      "DataEncryption": false
+    }
+  },
+  "Performance": {
+    "Memory": {
+      "DriverMemory": "4g",
+      "ExecutorMemory": "8g",
+      "MemoryFraction": 0.8,
+      "StorageFraction": 0.2
+    },
+    "CPU": {
+      "ExecutorCores": 4,
+      "DriverCores": 2,
+      "MaxCores": 80
+    },
+    "Network": {
+      "CompressionEnabled": true,
+      "CompressionCodec": "snappy",
+      "NetworkTimeoutSeconds": 300
+    },
+    "Storage": {
+      "LocalStoragePath": "/tmp/spark",
+      "CheckpointPath": "/tmp/spark/checkpoints",
+      "TempStoragePath": "/tmp/spark/temp"
+    }
+  },
+  "MultiDatabase": {
+    "JoinStrategy": {
+      "Type": "BroadcastHashJoin",
+      "BroadcastThreshold": "10m",
+      "AutoBroadcastJoinThreshold": "10m"
+    },
+    "Partitioning": {
+      "Strategy": "Hash",
+      "PartitionColumns": ["CustomerID", "TransactionID"],
+      "NumPartitions": 200
+    },
+    "Caching": {
+      "Enabled": true,
+      "StorageLevel": "MEMORY_AND_DISK_SER",
+      "CacheTables": ["customer", "product", "category"]
+    }
+  },
+  "CDC": {
+    "Processing": {
+      "OperationTypes": {
+        "IncludeInserts": true,
+        "IncludeUpdates": true,
+        "IncludeDeletes": false,
+        "IncludeNetChanges": true
+      },
+      "LSNManagement": {
+        "ValidationEnabled": true,
+        "GapHandling": "Skip",
+        "RetentionHours": 24
+      }
+    },
+    "Transformation": {
+      "AddOperationTypeColumn": true,
+      "AddProcessingMetadata": true,
+      "FilterInvalidOperations": true,
+      "HandleSchemaChanges": true
+    }
+  },
+  "TargetDatabase": {
+    "Staging": {
+      "Schema": "staging",
+      "TableNamingConvention": "{DatabaseName}_{TableName}_Delta",
+      "Partitioning": {
+        "Enabled": true,
+        "Strategy": "Date",
+        "Column": "ProcessingTimestamp"
+      },
+      "Indexing": {
+        "Enabled": true,
+        "Strategy": "Clustered",
+        "Columns": ["ProcessingTimestamp", "SourceDatabase"]
+      },
+      "Cleanup": {
+        "Enabled": true,
+        "RetentionDays": 7,
+        "Strategy": "Delete"
+      }
+    },
+    "Final": {
+      "Schema": "final",
+      "TableNamingConvention": "{DatabaseName}_{TableName}_Final",
+      "Partitioning": {
+        "Enabled": true,
+        "Strategy": "Date",
+        "Column": "ModifiedDate"
+      },
+      "Indexing": {
+        "Enabled": true,
+        "Strategy": "Clustered",
+        "Columns": ["ModifiedDate", "CustomerID"]
+      }
+    }
+  },
+  "ErrorHandling": {
+    "RetryPolicy": {
+      "MaxRetries": 3,
+      "RetryDelaySeconds": 60,
+      "BackoffMultiplier": 2.0,
+      "MaxRetryDelaySeconds": 300
+    },
+    "Fallback": {
+      "Enabled": true,
+      "Strategy": "SkipAndContinue",
+      "LogErrors": true
+    },
+    "Validation": {
+      "DataValidationEnabled": true,
+      "SchemaValidationEnabled": true,
+      "ConstraintValidationEnabled": true
+    }
+  },
+  "Deployment": {
+    "Environment": "Production",
+    "Cluster": {
+      "Type": "Standalone",
+      "MasterNodes": 1,
+      "WorkerNodes": 10,
+      "ResourceManager": "YARN"
+    },
+    "Scaling": {
+      "AutoScalingEnabled": true,
+      "MinNodes": 5,
+      "MaxNodes": 20,
+      "ScaleUpThreshold": 0.8,
+      "ScaleDownThreshold": 0.3
+    }
+  }
+}

@@ -1,0 +1,67 @@
+{
+  "deployment": {
+    "sqlServer": {
+      "instance": "localhost",
+      "database": "SSISDB",
+      "useWindowsAuthentication": true,
+      "username": "",
+      "password": ""
+    },
+    "ssis": {
+      "folderName": "ETLFramework",
+      "projectName": "ETLProject",
+      "packagesPath": ".\\ETL.SSIS\\Packages",
+      "forceDeployment": false
+    },
+    "logging": {
+      "logFilePath": ".\\deploy_ssis.log",
+      "logLevel": "INFO"
+    }
+  },
+  "environmentVariables": {
+    "SourceConnectionString": "Server=SourceServer;Database=SourceDB;Integrated Security=true;",
+    "TargetConnectionString": "Server=TargetServer;Database=TargetDB;Integrated Security=true;",
+    "FileSharePath": "\\\\server\\share\\data",
+    "LogLevel": "INFO",
+    "BatchSize": "1000",
+    "RetryAttempts": "3",
+    "TimeoutSeconds": "300",
+    "EmailNotification": "admin@company.com",
+    "DataArchivePath": "\\\\server\\archive\\data",
+    "TempDirectory": "C:\\Temp\\SSIS"
+  },
+  "connections": {
+    "source": {
+      "server": "SourceServer",
+      "database": "SourceDB",
+      "integratedSecurity": true,
+      "username": "",
+      "password": "",
+      "timeout": 30
+    },
+    "target": {
+      "server": "TargetServer",
+      "database": "TargetDB",
+      "integratedSecurity": true,
+      "username": "",
+      "password": "",
+      "timeout": 30
+    },
+    "staging": {
+      "server": "StagingServer",
+      "database": "StagingDB",
+      "integratedSecurity": true,
+      "username": "",
+      "password": "",
+      "timeout": 30
+    }
+  },
+  "settings": {
+    "maxConcurrentExecutions": 5,
+    "packageTimeoutMinutes": 60,
+    "enableLogging": true,
+    "enableNotifications": false,
+    "backupBeforeDeploy": true,
+    "validatePackages": true
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "format": 1,
+  "restore": {
+    "/Users/vipintomar/AIApps/ETL-scalable/src/SSIS_Transform_Project/SSIS_Transform.csproj": {}
+  },
+  "projects": {
+    "/Users/vipintomar/AIApps/ETL-scalable/src/SSIS_Transform_Project/SSIS_Transform.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/Users/vipintomar/AIApps/ETL-scalable/src/SSIS_Transform_Project/SSIS_Transform.csproj",
+        "projectName": "SSIS_Transform",
+        "projectPath": "/Users/vipintomar/AIApps/ETL-scalable/src/SSIS_Transform_Project/SSIS_Transform.csproj",
+        "packagesPath": "/Users/vipintomar/.nuget/packages/",
+        "outputPath": "/Users/vipintomar/AIApps/ETL-scalable/src/SSIS_Transform_Project/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/Users/vipintomar/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net472"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net472": {
+            "targetAlias": "net472",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net472": {
+          "targetAlias": "net472",
+          "dependencies": {
+            "Microsoft.NETFramework.ReferenceAssemblies": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[1.0.3, )",
+              "autoReferenced": true
+            }
+          },
+          "runtimeIdentifierGraphPath": "/opt/homebrew/Cellar/dotnet@8/8.0.15/libexec/sdk/8.0.115/RuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}

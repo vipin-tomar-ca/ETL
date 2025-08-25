@@ -1,0 +1,12 @@
+/Users/vipintomar/AIApps/ETL-scalable/src/ETL.Enterprise.Domain/obj/Release/net8.0/ETL.Enterprise.Domain.csproj.AssemblyReference.cache
+/Users/vipintomar/AIApps/ETL-scalable/src/ETL.Enterprise.Domain/obj/Release/net8.0/ETL.Enterprise.Domain.GeneratedMSBuildEditorConfig.editorconfig
+/Users/vipintomar/AIApps/ETL-scalable/src/ETL.Enterprise.Domain/obj/Release/net8.0/ETL.Enterprise.Domain.AssemblyInfoInputs.cache
+/Users/vipintomar/AIApps/ETL-scalable/src/ETL.Enterprise.Domain/obj/Release/net8.0/ETL.Enterprise.Domain.AssemblyInfo.cs
+/Users/vipintomar/AIApps/ETL-scalable/src/ETL.Enterprise.Domain/obj/Release/net8.0/ETL.Enterprise.Domain.csproj.CoreCompileInputs.cache
+/Users/vipintomar/AIApps/ETL-scalable/src/ETL.Enterprise.Domain/bin/Release/net8.0/ETL.Enterprise.Domain.deps.json
+/Users/vipintomar/AIApps/ETL-scalable/src/ETL.Enterprise.Domain/bin/Release/net8.0/ETL.Enterprise.Domain.dll
+/Users/vipintomar/AIApps/ETL-scalable/src/ETL.Enterprise.Domain/bin/Release/net8.0/ETL.Enterprise.Domain.pdb
+/Users/vipintomar/AIApps/ETL-scalable/src/ETL.Enterprise.Domain/obj/Release/net8.0/ETL.Enterprise.Domain.dll
+/Users/vipintomar/AIApps/ETL-scalable/src/ETL.Enterprise.Domain/obj/Release/net8.0/refint/ETL.Enterprise.Domain.dll
+/Users/vipintomar/AIApps/ETL-scalable/src/ETL.Enterprise.Domain/obj/Release/net8.0/ETL.Enterprise.Domain.pdb
+/Users/vipintomar/AIApps/ETL-scalable/src/ETL.Enterprise.Domain/obj/Release/net8.0/ref/ETL.Enterprise.Domain.dll

@@ -1,0 +1,5 @@
+is_global = true
+build_property.RootNamespace = ETL.Scalable.Transform
+build_property.ProjectDir = /Users/vipintomar/AIApps/ETL-scalable/src/SSIS_Transform_Project/
+build_property.EnableComHosting = 
+build_property.EnableGeneratedComInterfaceComImportInterop = 

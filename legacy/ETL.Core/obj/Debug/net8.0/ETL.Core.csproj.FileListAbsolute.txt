@@ -1,0 +1,12 @@
+/Users/vipintomar/AIApps/ETL-scalable/ETL.Core/obj/Debug/net8.0/ETL.Core.csproj.AssemblyReference.cache
+/Users/vipintomar/AIApps/ETL-scalable/ETL.Core/obj/Debug/net8.0/ETL.Core.GeneratedMSBuildEditorConfig.editorconfig
+/Users/vipintomar/AIApps/ETL-scalable/ETL.Core/obj/Debug/net8.0/ETL.Core.AssemblyInfoInputs.cache
+/Users/vipintomar/AIApps/ETL-scalable/ETL.Core/obj/Debug/net8.0/ETL.Core.AssemblyInfo.cs
+/Users/vipintomar/AIApps/ETL-scalable/ETL.Core/obj/Debug/net8.0/ETL.Core.csproj.CoreCompileInputs.cache
+/Users/vipintomar/AIApps/ETL-scalable/ETL.Core/bin/Debug/net8.0/ETL.Core.deps.json
+/Users/vipintomar/AIApps/ETL-scalable/ETL.Core/bin/Debug/net8.0/ETL.Core.dll
+/Users/vipintomar/AIApps/ETL-scalable/ETL.Core/bin/Debug/net8.0/ETL.Core.pdb
+/Users/vipintomar/AIApps/ETL-scalable/ETL.Core/obj/Debug/net8.0/ETL.Core.dll
+/Users/vipintomar/AIApps/ETL-scalable/ETL.Core/obj/Debug/net8.0/refint/ETL.Core.dll
+/Users/vipintomar/AIApps/ETL-scalable/ETL.Core/obj/Debug/net8.0/ETL.Core.pdb
+/Users/vipintomar/AIApps/ETL-scalable/ETL.Core/obj/Debug/net8.0/ref/ETL.Core.dll

@@ -1,0 +1,5 @@
+/Users/vipintomar/AIApps/ETL-scalable/src/standalone/obj/Release/net6.0/ETL.Scalable.csproj.AssemblyReference.cache
+/Users/vipintomar/AIApps/ETL-scalable/src/standalone/obj/Release/net6.0/ETL.Scalable.GeneratedMSBuildEditorConfig.editorconfig
+/Users/vipintomar/AIApps/ETL-scalable/src/standalone/obj/Release/net6.0/ETL.Scalable.AssemblyInfoInputs.cache
+/Users/vipintomar/AIApps/ETL-scalable/src/standalone/obj/Release/net6.0/ETL.Scalable.AssemblyInfo.cs
+/Users/vipintomar/AIApps/ETL-scalable/src/standalone/obj/Release/net6.0/ETL.Scalable.csproj.CoreCompileInputs.cache

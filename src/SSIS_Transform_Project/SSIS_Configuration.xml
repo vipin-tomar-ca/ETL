@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<DTSConfiguration>
+  <DTSConfigurationHeading>
+    <DTSConfigurationFileInfo GeneratedBy="SSIS" GeneratedFromPackageName="SSIS_Scalable_ETL" GeneratedFromPackageID="{12345678-1234-1234-1234-123456789012}" GeneratedDate="2024-01-15T10:00:00.0000000-05:00"/>
+  </DTSConfigurationHeading>
+  <Configuration ConfiguredType="Property" Path="\Package.Connections[StagingConnection].Properties[ConnectionString]" ValueType="String">
+    <ConfiguredValue>Server=YourServer;Database=YourStagingDB;Integrated Security=true;Connection Timeout=300;</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package.Connections[StagingConnection].Properties[Description]" ValueType="String">
+    <ConfiguredValue>Connection to staging database for SSIS Transform Component</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package.Connections[SourceConnection].Properties[ConnectionString]" ValueType="String">
+    <ConfiguredValue>Server=YourSourceServer;Database=YourSourceDB;Integrated Security=true;</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package.Connections[SourceConnection].Properties[Description]" ValueType="String">
+    <ConfiguredValue>Connection to source database for data extraction</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package.Variables[User::BatchSize].Properties[Value]" ValueType="Int32">
+    <ConfiguredValue>100000</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package.Variables[User::MaxConcurrentBatches].Properties[Value]" ValueType="Int32">
+    <ConfiguredValue>4</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package.Variables[User::CommandTimeout].Properties[Value]" ValueType="Int32">
+    <ConfiguredValue>300</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package.Variables[User::StagingTableName].Properties[Value]" ValueType="String">
+    <ConfiguredValue>staging_transformed_data</ConfiguredValue>
+  </Configuration>
+</DTSConfiguration>

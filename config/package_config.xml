@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="utf-8"?>
+<DTSConfiguration>
+  <DTSConfigurationHeading>
+    <DTSConfigurationFileInfo GeneratedBy="ETL-Admin" GeneratedFromPackageName="Extract" GeneratedFromPackageID="{87654321-4321-4321-4321-210987654321}" GeneratedDate="2024-01-01T00:00:00.000Z" />
+  </DTSConfigurationHeading>
+  <Configuration ConfiguredType="Property" Path="\Package.Variables[User::BatchSize].Properties[Value]" ValueType="Int32">
+    <ConfiguredValue>100000</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package.Variables[User::MaxParallelTasks].Properties[Value]" ValueType="Int32">
+    <ConfiguredValue>4</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package.Variables[User::LogConnectionString].Properties[Value]" ValueType="String">
+    <ConfiguredValue>Data Source=ETL-SERVER;Initial Catalog=ETL_Metadata;Integrated Security=SSPI;</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package.Variables[User::ParquetOutputPath].Properties[Value]" ValueType="String">
+    <ConfiguredValue>C:\ETL\Parquet</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package.Variables[User::StagingConnectionString].Properties[Value]" ValueType="String">
+    <ConfiguredValue>Data Source=ETL-SERVER;Initial Catalog=ETL_Staging;Integrated Security=SSPI;</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package.Properties[MaxConcurrentExecutables]" ValueType="Int32">
+    <ConfiguredValue>4</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package.Properties[LoggingMode]" ValueType="Int32">
+    <ConfiguredValue>1</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package.Properties[LoggingOptions]" ValueType="Int32">
+    <ConfiguredValue>1</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package.Properties[FailPackageOnError]" ValueType="Boolean">
+    <ConfiguredValue>false</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package.Properties[FailParentOnError]" ValueType="Boolean">
+    <ConfiguredValue>false</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package.Properties[MaxErrorCount]" ValueType="Int32">
+    <ConfiguredValue>0</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package.Properties[CheckpointFileName]" ValueType="String">
+    <ConfiguredValue>C:\ETL\Checkpoints\Extract.chk</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package.Properties[CheckpointUsage]" ValueType="Int32">
+    <ConfiguredValue>0</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package.Properties[SaveCheckpoints]" ValueType="Boolean">
+    <ConfiguredValue>false</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package.Properties[CheckpointSaveMode]" ValueType="Int32">
+    <ConfiguredValue>0</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package.Properties[SuppressConfigurationWarnings]" ValueType="Boolean">
+    <ConfiguredValue>false</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package.Properties[SuppressConfigurationErrors]" ValueType="Boolean">
+    <ConfiguredValue>false</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package.Properties[SuppressErrors]" ValueType="Boolean">
+    <ConfiguredValue>false</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package.Properties[SuppressWarnings]" ValueType="Boolean">
+    <ConfiguredValue>false</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package.Properties[ShowProgress]" ValueType="Boolean">
+    <ConfiguredValue>true</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package.Properties[ShowProgressInTaskbar]" ValueType="Boolean">
+    <ConfiguredValue>true</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package.Properties[ShowProgressInTitlebar]" ValueType="Boolean">
+    <ConfiguredValue>true</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package.Properties[ShowProgressInStatusbar]" ValueType="Boolean">
+    <ConfiguredValue>true</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package.Properties[ShowProgressInDialog]" ValueType="Boolean">
+    <ConfiguredValue>true</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package.Properties[ShowProgressInConsole]" ValueType="Boolean">
+    <ConfiguredValue>true</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package.Properties[ShowProgressInLog]" ValueType="Boolean">
+    <ConfiguredValue>true</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package.Properties[ShowProgressInEventLog]" ValueType="Boolean">
+    <ConfiguredValue>false</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package.Properties[ShowProgressInFile]" ValueType="Boolean">
+    <ConfiguredValue>false</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package.Properties[ShowProgressInSqlServerLog]" ValueType="Boolean">
+    <ConfiguredValue>false</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package.Properties[ShowProgressInWindowsEventLog]" ValueType="Boolean">
+    <ConfiguredValue>false</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package.Properties[ShowProgressInCustomLog]" ValueType="Boolean">
+    <ConfiguredValue>false</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package.Properties[ShowProgressInXmlLog]" ValueType="Boolean">
+    <ConfiguredValue>false</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package.Properties[ShowProgressInTextLog]" ValueType="Boolean">
+    <ConfiguredValue>false</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package.Properties[ShowProgressInCsvLog]" ValueType="Boolean">
+    <ConfiguredValue>false</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package.Properties[ShowProgressInTsvLog]" ValueType="Boolean">
+    <ConfiguredValue>false</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package.Properties[ShowProgressInHtmlLog]" ValueType="Boolean">
+    <ConfiguredValue>false</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package.Properties[ShowProgressInSqlLog]" ValueType="Boolean">
+    <ConfiguredValue>false</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package.Properties[ShowProgressInSqlServerProfilerLog]" ValueType="Boolean">
+    <ConfiguredValue>false</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package.Properties[ShowProgressInSqlServerDtsLog]" ValueType="Boolean">
+    <ConfiguredValue>false</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package.Properties[ShowProgressInSqlServerDtsLog2008]" ValueType="Boolean">
+    <ConfiguredValue>false</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package.Properties[ShowProgressInSqlServerDtsLog2008R2]" ValueType="Boolean">
+    <ConfiguredValue>false</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package.Properties[ShowProgressInSqlServerDtsLog2012]" ValueType="Boolean">
+    <ConfiguredValue>false</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package.Properties[ShowProgressInSqlServerDtsLog2014]" ValueType="Boolean">
+    <ConfiguredValue>false</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package.Properties[ShowProgressInSqlServerDtsLog2016]" ValueType="Boolean">
+    <ConfiguredValue>false</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package.Properties[ShowProgressInSqlServerDtsLog2017]" ValueType="Boolean">
+    <ConfiguredValue>false</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package.Properties[ShowProgressInSqlServerDtsLog2019]" ValueType="Boolean">
+    <ConfiguredValue>false</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package.Properties[ShowProgressInSqlServerDtsLog2022]" ValueType="Boolean">
+    <ConfiguredValue>false</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package.Properties[ShowProgressInSqlServerDtsLog2022R2]" ValueType="Boolean">
+    <ConfiguredValue>false</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package.Properties[ShowProgressInSqlServerDtsLog2023]" ValueType="Boolean">
+    <ConfiguredValue>false</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package.Properties[ShowProgressInSqlServerDtsLog2024]" ValueType="Boolean">
+    <ConfiguredValue>false</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package.Properties[ShowProgressInSqlServerDtsLog2025]" ValueType="Boolean">
+    <ConfiguredValue>false</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package.Properties[ShowProgressInSqlServerDtsLog2026]" ValueType="Boolean">
+    <ConfiguredValue>false</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package.Properties[ShowProgressInSqlServerDtsLog2027]" ValueType="Boolean">
+    <ConfiguredValue>false</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package.Properties[ShowProgressInSqlServerDtsLog2028]" ValueType="Boolean">
+    <ConfiguredValue>false</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package.Properties[ShowProgressInSqlServerDtsLog2029]" ValueType="Boolean">
+    <ConfiguredValue>false</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package.Properties[ShowProgressInSqlServerDtsLog2030]" ValueType="Boolean">
+    <ConfiguredValue>false</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package.Properties[ShowProgressInSqlServerDtsLog2031]" ValueType="Boolean">
+    <ConfiguredValue>false</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package.Properties[ShowProgressInSqlServerDtsLog2032]" ValueType="Boolean">
+    <ConfiguredValue>false</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package.Properties[ShowProgressInSqlServerDtsLog2033]" ValueType="Boolean">
+    <ConfiguredValue>false</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package.Properties[ShowProgressInSqlServerDtsLog2034]" ValueType="Boolean">
+    <ConfiguredValue>false</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package.Properties[ShowProgressInSqlServerDtsLog2035]" ValueType="Boolean">
+    <ConfiguredValue>false</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package.Properties[ShowProgressInSqlServerDtsLog2036]" ValueType="Boolean">
+    <ConfiguredValue>false</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package.Properties[ShowProgressInSqlServerDtsLog2037]" ValueType="Boolean">
+    <ConfiguredValue>false</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package.Properties[ShowProgressInSqlServerDtsLog2038]" ValueType="Boolean">
+    <ConfiguredValue>false</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package.Properties[ShowProgressInSqlServerDtsLog2039]" ValueType="Boolean">
+    <ConfiguredValue>false</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package.Properties[ShowProgressInSqlServerDtsLog2040]" ValueType="Boolean">
+    <ConfiguredValue>false</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package.Properties[ShowProgressInSqlServerDtsLog2041]" ValueType="Boolean">
+    <ConfiguredValue>false</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package.Properties[ShowProgressInSqlServerDtsLog2042]" ValueType="Boolean">
+    <ConfiguredValue>false</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package.Properties[ShowProgressInSqlServerDtsLog2043]" ValueType="Boolean">
+    <ConfiguredValue>false</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package.Properties[ShowProgressInSqlServerDtsLog2044]" ValueType="Boolean">
+    <ConfiguredValue>false</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package.Properties[ShowProgressInSqlServerDtsLog2045]" ValueType="Boolean">
+    <ConfiguredValue>false</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package.Properties[ShowProgressInSqlServerDtsLog2046]" ValueType="Boolean">
+    <ConfiguredValue>false</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package.Properties[ShowProgressInSqlServerDtsLog2047]" ValueType="Boolean">
+    <ConfiguredValue>false</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package.Properties[ShowProgressInSqlServerDtsLog2048]" ValueType="Boolean">
+    <ConfiguredValue>false</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package.Properties[ShowProgressInSqlServerDtsLog2049]" ValueType="Boolean">
+    <ConfiguredValue>false</ConfiguredValue>
+  </Configuration>
+  <Configuration ConfiguredType="Property" Path="\Package.Properties[ShowProgressInSqlServerDtsLog2050]" ValueType="Boolean">
+    <ConfiguredValue>false</ConfiguredValue>
+  </Configuration>
+</DTSConfiguration>

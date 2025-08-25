@@ -1,0 +1,74 @@
+{
+  "TestSettings": {
+    "DatabaseConnections": {
+      "StagingDatabase": {
+        "ConnectionString": "Server=localhost;Database=ETL_Staging_Test;Integrated Security=true;",
+        "DatabaseName": "ETL_Staging_Test"
+      },
+      "SqlServerSource": {
+        "ConnectionString": "Server=localhost;Database=ETL_Source_SQLServer_Test;Integrated Security=true;",
+        "DatabaseName": "ETL_Source_SQLServer_Test"
+      },
+      "MySqlSource": {
+        "ConnectionString": "Server=localhost;Database=ETL_Source_MySQL_Test;Uid=test_user;Pwd=test_password;",
+        "DatabaseName": "ETL_Source_MySQL_Test"
+      }
+    },
+    "PerformanceSettings": {
+      "BatchSize": 1000,
+      "MaxDegreeOfParallelism": 2,
+      "TimeoutSeconds": 30,
+      "LargeDatasetSize": 1000
+    },
+    "TestData": {
+      "CustomerRecords": 5,
+      "OrderRecords": 5,
+      "LargeDatasetRecords": 1000
+    },
+    "ValidationSettings": {
+      "EnableDataQualityChecks": true,
+      "EnablePerformanceChecks": true,
+      "EnableErrorHandlingChecks": true,
+      "StringCleaningValidation": true
+    },
+    "CleanupSettings": {
+      "AutoCleanupDatabases": true,
+      "AutoCleanupStagingData": true,
+      "PreserveTestResults": false
+    }
+  },
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft": "Warning",
+      "Microsoft.Hosting.Lifetime": "Information",
+      "ETL.Tests": "Debug"
+    },
+    "Console": {
+      "Enabled": true,
+      "IncludeScopes": true
+    },
+    "File": {
+      "Enabled": true,
+      "Path": "logs/etl-tests.log",
+      "MaxFileSizeInMB": 10,
+      "MaxNumberOfFiles": 5
+    }
+  },
+  "TestCategories": {
+    "UnitTests": {
+      "Enabled": true,
+      "TimeoutSeconds": 10
+    },
+    "IntegrationTests": {
+      "Enabled": true,
+      "TimeoutSeconds": 60,
+      "RequireDatabase": true
+    },
+    "PerformanceTests": {
+      "Enabled": true,
+      "TimeoutSeconds": 120,
+      "RequireLargeDataset": true
+    }
+  }
+}
