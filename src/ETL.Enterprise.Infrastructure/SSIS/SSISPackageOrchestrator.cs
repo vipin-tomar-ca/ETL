@@ -106,7 +106,9 @@ namespace ETL.Enterprise.Infrastructure.SSIS
         public async Task<List<PackageExecutionResult>> ExecutePackagesWithDependenciesAsync(
             List<PackageExecutionRequest> packages)
         {
-            var dependencyManager = new SSISDependencyManager(_logger);
+            var loggerFactory = LoggerFactory.Create(builder => builder.AddSimpleConsole());
+            var dependencyManagerLogger = loggerFactory.CreateLogger<SSISDependencyManager>();
+            var dependencyManager = new SSISDependencyManager(dependencyManagerLogger);
             return await dependencyManager.ExecuteWithDependenciesAsync(packages);
         }
 
@@ -117,7 +119,9 @@ namespace ETL.Enterprise.Infrastructure.SSIS
             string basePackagePath, 
             ChunkingConfiguration config)
         {
-            var chunkingOrchestrator = new SSISChunkingOrchestrator(_logger, _configuration);
+            var loggerFactory = LoggerFactory.Create(builder => builder.AddSimpleConsole());
+            var chunkingLogger = loggerFactory.CreateLogger<SSISChunkingOrchestrator>();
+            var chunkingOrchestrator = new SSISChunkingOrchestrator(chunkingLogger, this);
             return await chunkingOrchestrator.ExecuteChunkedProcessingAsync(basePackagePath, config);
         }
 
@@ -229,13 +233,12 @@ namespace ETL.Enterprise.Infrastructure.SSIS
                     VALUES 
                     (@ExecutionId, @PackagePath, 'Running', @StartTime, @Parameters, GETDATE())";
 
-                await connection.ExecuteAsync(query, new
-                {
-                    ExecutionId = executionId,
-                    PackagePath = packagePath,
-                    StartTime = DateTime.UtcNow,
-                    Parameters = JsonSerializer.Serialize(parameters)
-                });
+                using var command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@ExecutionId", executionId);
+                command.Parameters.AddWithValue("@PackagePath", packagePath);
+                command.Parameters.AddWithValue("@StartTime", DateTime.UtcNow);
+                command.Parameters.AddWithValue("@Parameters", JsonSerializer.Serialize(parameters));
+                await command.ExecuteNonQueryAsync();
             }
             catch (Exception ex)
             {
@@ -262,17 +265,16 @@ namespace ETL.Enterprise.Infrastructure.SSIS
                         RecordsProcessed = @RecordsProcessed
                     WHERE ExecutionId = @ExecutionId";
 
-                await connection.ExecuteAsync(query, new
-                {
-                    ExecutionId = executionId,
-                    Status = result.Success ? "Success" : "Failed",
-                    EndTime = DateTime.UtcNow,
-                    ExecutionTimeSeconds = result.ExecutionTime.TotalSeconds,
-                    ExitCode = result.ExitCode,
-                    Output = result.Output,
-                    Error = result.Error,
-                    RecordsProcessed = ExtractRecordCount(result.Output)
-                });
+                using var command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@ExecutionId", executionId);
+                command.Parameters.AddWithValue("@Status", result.Success ? "Success" : "Failed");
+                command.Parameters.AddWithValue("@EndTime", DateTime.UtcNow);
+                command.Parameters.AddWithValue("@ExecutionTimeSeconds", result.ExecutionTime.TotalSeconds);
+                command.Parameters.AddWithValue("@ExitCode", result.ExitCode);
+                command.Parameters.AddWithValue("@Output", result.Output);
+                command.Parameters.AddWithValue("@Error", result.Error);
+                command.Parameters.AddWithValue("@RecordsProcessed", ExtractRecordCount(result.Output));
+                await command.ExecuteNonQueryAsync();
             }
             catch (Exception ex)
             {
@@ -297,13 +299,12 @@ namespace ETL.Enterprise.Infrastructure.SSIS
                         Error = @Error
                     WHERE ExecutionId = @ExecutionId";
 
-                await connection.ExecuteAsync(query, new
-                {
-                    ExecutionId = executionId,
-                    EndTime = DateTime.UtcNow,
-                    ExecutionTimeSeconds = executionTime.TotalSeconds,
-                    Error = ex.Message
-                });
+                using var command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@ExecutionId", executionId);
+                command.Parameters.AddWithValue("@EndTime", DateTime.UtcNow);
+                command.Parameters.AddWithValue("@ExecutionTimeSeconds", executionTime.TotalSeconds);
+                command.Parameters.AddWithValue("@Error", ex.Message);
+                await command.ExecuteNonQueryAsync();
             }
             catch (Exception logEx)
             {
@@ -373,21 +374,15 @@ namespace ETL.Enterprise.Infrastructure.SSIS
     /// </summary>
     public class ChunkingConfiguration
     {
-        public string SourceQuery { get; set; }
+        public string SourceQuery { get; set; } = string.Empty;
         public int NumberOfChunks { get; set; }
         public string ChunkingStrategy { get; set; } = "Range";
         public int MaxConcurrentChunks { get; set; }
-        public Dictionary<string, string> BaseParameters { get; set; }
+        public Dictionary<string, string> BaseParameters { get; set; } = new Dictionary<string, string>();
+        public int TotalRecords { get; set; }
+        public int ChunkSize { get; set; }
+        public bool StopOnError { get; set; } = true;
+        public int DelayBetweenChunks { get; set; } = 0;
     }
 
-    /// <summary>
-    /// Result of chunked processing
-    /// </summary>
-    public class ChunkExecutionResult
-    {
-        public int ChunkId { get; set; }
-        public PackageExecutionResult PackageResult { get; set; }
-        public int RecordsProcessed { get; set; }
-        public TimeSpan ProcessingTime { get; set; }
-    }
 }
