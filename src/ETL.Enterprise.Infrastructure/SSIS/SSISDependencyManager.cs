@@ -11,9 +11,9 @@ namespace ETL.Enterprise.Infrastructure.SSIS
     /// </summary>
     public class SSISDependencyManager
     {
-        private readonly ILogger<SSISDependencyManager> _logger;
+        private readonly ILogger _logger;
 
-        public SSISDependencyManager(ILogger<SSISDependencyManager> logger)
+        public SSISDependencyManager(ILogger logger)
         {
             _logger = logger;
         }

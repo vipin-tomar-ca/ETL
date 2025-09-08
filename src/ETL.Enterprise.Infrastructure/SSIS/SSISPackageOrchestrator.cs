@@ -106,9 +106,7 @@ namespace ETL.Enterprise.Infrastructure.SSIS
         public async Task<List<PackageExecutionResult>> ExecutePackagesWithDependenciesAsync(
             List<PackageExecutionRequest> packages)
         {
-            var loggerFactory = LoggerFactory.Create(builder => builder.AddSimpleConsole());
-            var dependencyManagerLogger = loggerFactory.CreateLogger<SSISDependencyManager>();
-            var dependencyManager = new SSISDependencyManager(dependencyManagerLogger);
+            var dependencyManager = new SSISDependencyManager(_logger);
             return await dependencyManager.ExecuteWithDependenciesAsync(packages);
         }
 
@@ -119,9 +117,7 @@ namespace ETL.Enterprise.Infrastructure.SSIS
             string basePackagePath, 
             ChunkingConfiguration config)
         {
-            var loggerFactory = LoggerFactory.Create(builder => builder.AddSimpleConsole());
-            var chunkingLogger = loggerFactory.CreateLogger<SSISChunkingOrchestrator>();
-            var chunkingOrchestrator = new SSISChunkingOrchestrator(chunkingLogger, this);
+            var chunkingOrchestrator = new SSISChunkingOrchestrator(_logger, this);
             return await chunkingOrchestrator.ExecuteChunkedProcessingAsync(basePackagePath, config);
         }
 

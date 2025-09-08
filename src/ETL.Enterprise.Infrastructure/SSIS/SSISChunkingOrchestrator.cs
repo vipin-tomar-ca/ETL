@@ -11,10 +11,10 @@ namespace ETL.Enterprise.Infrastructure.SSIS
     /// </summary>
     public class SSISChunkingOrchestrator
     {
-        private readonly ILogger<SSISChunkingOrchestrator> _logger;
+        private readonly ILogger _logger;
         private readonly SSISPackageOrchestrator _packageOrchestrator;
 
-        public SSISChunkingOrchestrator(ILogger<SSISChunkingOrchestrator> logger, SSISPackageOrchestrator packageOrchestrator)
+        public SSISChunkingOrchestrator(ILogger logger, SSISPackageOrchestrator packageOrchestrator)
         {
             _logger = logger;
             _packageOrchestrator = packageOrchestrator;
