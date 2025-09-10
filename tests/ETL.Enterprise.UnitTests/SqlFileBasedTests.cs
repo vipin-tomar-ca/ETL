@@ -1,0 +1,422 @@
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.Extensions.Logging;
+using Moq;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Threading.Tasks;
+using System.IO;
+using FluentAssertions;
+using ETL.Enterprise.Domain.Entities;
+using ETL.Enterprise.Domain.Enums;
+
+namespace ETL.Tests.Unit
+{
+    /// <summary>
+    /// Unit tests that demonstrate how to use SQL queries from external files
+    /// Supports both inline SQL and file-based SQL queries
+    /// </summary>
+    [TestClass]
+    public class SqlFileBasedTests
+    {
+        private Mock<ILogger<SqlFileBasedTests>> _mockLogger;
+        private Mock<ILogger<SqlFileLoader>> _mockFileLoaderLogger;
+        private SqlFileLoader _sqlFileLoader;
+        private DatabaseTestSetup _testSetup;
+        private SqlQueryExecutor _queryExecutor;
+
+        [TestInitialize]
+        public void TestInitialize()
+        {
+            _mockLogger = new Mock<ILogger<SqlFileBasedTests>>();
+            _mockFileLoaderLogger = new Mock<ILogger<SqlFileLoader>>();
+            _testSetup = new DatabaseTestSetup();
+            
+            // Initialize SQL file loader with test SQL files directory
+            var sqlFilesDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "SqlFiles");
+            _sqlFileLoader = new SqlFileLoader(_mockFileLoaderLogger.Object, sqlFilesDirectory);
+        }
+
+        [TestCleanup]
+        public void TestCleanup()
+        {
+            _testSetup?.Dispose();
+        }
+
+        #region File-Based Query Execution Tests
+
+        /// <summary>
+        /// Tests executing a simple SELECT query loaded from a SQL file
+        /// </summary>
+        [TestMethod]
+        public async Task ExecuteQuery_FromSqlFile_SimpleSelect_ReturnsExpectedResults()
+        {
+            // Arrange
+            var mockConnection = _testSetup.CreateMockConnection();
+            _queryExecutor = new SqlQueryExecutor(mockConnection.Object, _mockLogger.Object);
+            
+            // Load SQL query from file
+            var sqlQuery = _sqlFileLoader.LoadSqlQuery("SimpleSelectCustomers");
+            var expectedResults = new List<CustomerData>
+            {
+                new CustomerData { CustomerID = 1, CustomerName = "John Doe", Email = "john@example.com" }
+            };
+
+            SqlQueryTestUtilities.SetupMockDataReader(_testSetup.CreateMockDataReader(expectedResults), expectedResults);
+
+            // Act
+            var result = await _queryExecutor.ExecuteQueryAsync<CustomerData>(sqlQuery);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Should().HaveCount(1);
+            result.First().CustomerName.Should().Be("John Doe");
+        }
+
+        /// <summary>
+        /// Tests executing a parameterized query loaded from a SQL file
+        /// </summary>
+        [TestMethod]
+        public async Task ExecuteQuery_FromSqlFile_WithParameters_ReturnsFilteredResults()
+        {
+            // Arrange
+            var mockConnection = _testSetup.CreateMockConnection();
+            _queryExecutor = new SqlQueryExecutor(mockConnection.Object, _mockLogger.Object);
+            
+            // Load parameterized SQL query from file
+            var parameterizedQuery = _sqlFileLoader.LoadParameterizedSqlQuery("SelectOrdersByDateRange");
+            var parameters = new Dictionary<string, object>
+            {
+                ["StartDate"] = new DateTime(2024, 1, 1),
+                ["EndDate"] = new DateTime(2024, 12, 31)
+            };
+
+            var expectedResults = new List<OrderData>
+            {
+                new OrderData { OrderID = 1, CustomerID = 123, OrderDate = new DateTime(2024, 6, 15), TotalAmount = 199.98m }
+            };
+
+            SqlQueryTestUtilities.SetupMockDataReader(_testSetup.CreateMockDataReader(expectedResults), expectedResults);
+
+            // Act
+            var result = await _queryExecutor.ExecuteQueryAsync<OrderData>(parameterizedQuery.Query, parameters);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Should().HaveCount(1);
+            result.First().OrderID.Should().Be(1);
+            
+            // Verify that the query contains the expected parameters
+            parameterizedQuery.Parameters.Should().Contain("StartDate");
+            parameterizedQuery.Parameters.Should().Contain("EndDate");
+        }
+
+        /// <summary>
+        /// Tests executing a complex JOIN query loaded from a SQL file
+        /// </summary>
+        [TestMethod]
+        public async Task ExecuteQuery_FromSqlFile_ComplexJoin_ReturnsExpectedResults()
+        {
+            // Arrange
+            var mockConnection = _testSetup.CreateMockConnection();
+            _queryExecutor = new SqlQueryExecutor(mockConnection.Object, _mockLogger.Object);
+            
+            // Load complex query from file
+            var sqlQuery = _sqlFileLoader.LoadSqlQuery("ComplexOrderDetailsJoin");
+            var parameters = new Dictionary<string, object>
+            {
+                ["StartDate"] = new DateTime(2024, 1, 1)
+            };
+
+            var expectedResults = new List<OrderDetailData>
+            {
+                new OrderDetailData
+                {
+                    CustomerID = 1,
+                    CustomerName = "John Doe",
+                    OrderID = 100,
+                    OrderDate = new DateTime(2024, 6, 15),
+                    TotalAmount = 199.98m,
+                    ProductName = "Test Product",
+                    Quantity = 2,
+                    UnitPrice = 99.99m
+                }
+            };
+
+            SqlQueryTestUtilities.SetupMockDataReader(_testSetup.CreateMockDataReader(expectedResults), expectedResults);
+
+            // Act
+            var result = await _queryExecutor.ExecuteQueryAsync<OrderDetailData>(sqlQuery, parameters);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Should().HaveCount(1);
+            result.First().CustomerName.Should().Be("John Doe");
+        }
+
+        /// <summary>
+        /// Tests executing multiple queries from a single SQL file
+        /// </summary>
+        [TestMethod]
+        public async Task ExecuteQuery_FromSqlFile_MultipleQueries_ExecutesAllSuccessfully()
+        {
+            // Arrange
+            var mockConnection = _testSetup.CreateMockConnection();
+            _queryExecutor = new SqlQueryExecutor(mockConnection.Object, _mockLogger.Object);
+            
+            // Load multiple queries from file
+            var queries = _sqlFileLoader.LoadMultipleSqlQueries("MultipleQueries", "GO");
+            
+            // Act & Assert
+            queries.Should().NotBeEmpty();
+            
+            foreach (var queryInfo in queries)
+            {
+                var result = await _queryExecutor.ExecuteQueryAsync<CustomerData>(queryInfo.Query);
+                result.Should().NotBeNull($"Query {queryInfo.Index} should execute successfully");
+            }
+        }
+
+        #endregion
+
+        #region Metadata-Based Query Tests
+
+        /// <summary>
+        /// Tests executing a query with metadata loaded from a SQL file
+        /// </summary>
+        [TestMethod]
+        public async Task ExecuteQuery_FromSqlFile_WithMetadata_ExecutesWithCorrectConfiguration()
+        {
+            // Arrange
+            var mockConnection = _testSetup.CreateMockConnection();
+            _queryExecutor = new SqlQueryExecutor(mockConnection.Object, _mockLogger.Object);
+            
+            // Load query with metadata from file
+            var queryWithMetadata = _sqlFileLoader.LoadSqlQueryWithMetadata("CustomerAggregateQuery");
+            
+            var expectedResults = new List<CustomerAggregateData>
+            {
+                new CustomerAggregateData
+                {
+                    CustomerID = 1,
+                    CustomerName = "John Doe",
+                    OrderCount = 5,
+                    TotalSpent = 1500.00m,
+                    AverageOrderValue = 300.00m
+                }
+            };
+
+            SqlQueryTestUtilities.SetupMockDataReader(_testSetup.CreateMockDataReader(expectedResults), expectedResults);
+
+            // Act
+            var result = await _queryExecutor.ExecuteQueryAsync<CustomerAggregateData>(
+                queryWithMetadata.Query, 
+                timeoutSeconds: queryWithMetadata.Metadata.TimeoutSeconds ?? 30);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Should().HaveCount(1);
+            
+            // Verify metadata
+            queryWithMetadata.Metadata.Should().NotBeNull();
+            queryWithMetadata.Metadata.Name.Should().NotBeNullOrEmpty();
+            queryWithMetadata.Metadata.Description.Should().NotBeNullOrEmpty();
+            queryWithMetadata.Metadata.QueryType.Should().Be("SELECT");
+        }
+
+        /// <summary>
+        /// Tests executing queries from a directory of SQL files
+        /// </summary>
+        [TestMethod]
+        public async Task ExecuteQuery_FromSqlDirectory_ExecutesAllQueriesSuccessfully()
+        {
+            // Arrange
+            var mockConnection = _testSetup.CreateMockConnection();
+            _queryExecutor = new SqlQueryExecutor(mockConnection.Object, _mockLogger.Object);
+            
+            // Load all queries from a directory
+            var queries = _sqlFileLoader.LoadSqlQueriesFromDirectory("CustomerQueries");
+            
+            // Act & Assert
+            queries.Should().NotBeEmpty();
+            
+            foreach (var kvp in queries)
+            {
+                var fileName = kvp.Key;
+                var sqlQuery = kvp.Value;
+                
+                var result = await _queryExecutor.ExecuteQueryAsync<CustomerData>(sqlQuery);
+                result.Should().NotBeNull($"Query from file {fileName} should execute successfully");
+            }
+        }
+
+        #endregion
+
+        #region Mixed Inline and File-Based Tests
+
+        /// <summary>
+        /// Tests combining inline SQL with file-based SQL queries
+        /// </summary>
+        [TestMethod]
+        public async Task ExecuteQuery_MixedInlineAndFileBased_ExecutesBothSuccessfully()
+        {
+            // Arrange
+            var mockConnection = _testSetup.CreateMockConnection();
+            _queryExecutor = new SqlQueryExecutor(mockConnection.Object, _mockLogger.Object);
+            
+            // Inline SQL query
+            var inlineQuery = "SELECT CustomerID, CustomerName FROM Customers WHERE IsActive = 1";
+            
+            // File-based SQL query
+            var fileQuery = _sqlFileLoader.LoadSqlQuery("SelectActiveCustomers");
+            
+            var expectedResults = new List<CustomerData>
+            {
+                new CustomerData { CustomerID = 1, CustomerName = "John Doe" }
+            };
+
+            SqlQueryTestUtilities.SetupMockDataReader(_testSetup.CreateMockDataReader(expectedResults), expectedResults);
+
+            // Act
+            var inlineResult = await _queryExecutor.ExecuteQueryAsync<CustomerData>(inlineQuery);
+            var fileResult = await _queryExecutor.ExecuteQueryAsync<CustomerData>(fileQuery);
+
+            // Assert
+            inlineResult.Should().NotBeNull("Inline query should execute successfully");
+            fileResult.Should().NotBeNull("File-based query should execute successfully");
+            
+            inlineResult.Should().HaveCount(1);
+            fileResult.Should().HaveCount(1);
+        }
+
+        /// <summary>
+        /// Tests using file-based queries with inline parameters
+        /// </summary>
+        [TestMethod]
+        public async Task ExecuteQuery_FileBasedWithInlineParameters_ExecutesSuccessfully()
+        {
+            // Arrange
+            var mockConnection = _testSetup.CreateMockConnection();
+            _queryExecutor = new SqlQueryExecutor(mockConnection.Object, _mockLogger.Object);
+            
+            // Load query from file
+            var sqlQuery = _sqlFileLoader.LoadSqlQuery("SelectOrdersByCustomer");
+            
+            // Define parameters inline
+            var parameters = new Dictionary<string, object>
+            {
+                ["CustomerID"] = 123,
+                ["OrderStatus"] = "Completed"
+            };
+
+            var expectedResults = new List<OrderData>
+            {
+                new OrderData { OrderID = 1, CustomerID = 123, Status = "Completed" }
+            };
+
+            SqlQueryTestUtilities.SetupMockDataReader(_testSetup.CreateMockDataReader(expectedResults), expectedResults);
+
+            // Act
+            var result = await _queryExecutor.ExecuteQueryAsync<OrderData>(sqlQuery, parameters);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Should().HaveCount(1);
+            result.First().CustomerID.Should().Be(123);
+        }
+
+        #endregion
+
+        #region SQL File Validation Tests
+
+        /// <summary>
+        /// Tests SQL file validation
+        /// </summary>
+        [TestMethod]
+        public void ValidateSqlFile_ValidFile_ReturnsValidResult()
+        {
+            // Act
+            var validationResult = _sqlFileLoader.ValidateSqlFile("SimpleSelectCustomers");
+
+            // Assert
+            validationResult.Should().NotBeNull();
+            validationResult.IsValid.Should().BeTrue();
+            validationResult.Errors.Should().BeEmpty();
+        }
+
+        /// <summary>
+        /// Tests SQL file validation with invalid syntax
+        /// </summary>
+        [TestMethod]
+        public void ValidateSqlFile_InvalidSyntax_ReturnsInvalidResult()
+        {
+            // Act
+            var validationResult = _sqlFileLoader.ValidateSqlFile("InvalidSyntaxQuery");
+
+            // Assert
+            validationResult.Should().NotBeNull();
+            validationResult.IsValid.Should().BeFalse();
+            validationResult.Errors.Should().NotBeEmpty();
+        }
+
+        #endregion
+
+        #region Performance Tests with File-Based Queries
+
+        /// <summary>
+        /// Tests performance of file-based queries
+        /// </summary>
+        [TestMethod]
+        public async Task ExecuteQuery_FileBased_PerformsWithinTimeLimit()
+        {
+            // Arrange
+            var mockConnection = _testSetup.CreateMockConnection();
+            _queryExecutor = new SqlQueryExecutor(mockConnection.Object, _mockLogger.Object);
+            
+            var sqlQuery = _sqlFileLoader.LoadSqlQuery("PerformanceTestQuery");
+            var maxExecutionTime = TimeSpan.FromSeconds(5);
+
+            // Act
+            var executionTime = await SqlQueryTestUtilities.MeasureExecutionTime(async () =>
+            {
+                await _queryExecutor.ExecuteQueryAsync<CustomerData>(sqlQuery);
+            });
+
+            // Assert
+            executionTime.Should().BeLessThan(maxExecutionTime, 
+                "File-based query should execute within time limit");
+        }
+
+        #endregion
+
+        #region Error Handling Tests
+
+        /// <summary>
+        /// Tests error handling when SQL file is not found
+        /// </summary>
+        [TestMethod]
+        public void LoadSqlQuery_FileNotFound_ThrowsFileNotFoundException()
+        {
+            // Act & Assert
+            Assert.ThrowsException<FileNotFoundException>(() =>
+            {
+                _sqlFileLoader.LoadSqlQuery("NonExistentFile");
+            });
+        }
+
+        /// <summary>
+        /// Tests error handling when SQL directory is not found
+        /// </summary>
+        [TestMethod]
+        public void LoadSqlQueriesFromDirectory_DirectoryNotFound_ThrowsDirectoryNotFoundException()
+        {
+            // Act & Assert
+            Assert.ThrowsException<DirectoryNotFoundException>(() =>
+            {
+                _sqlFileLoader.LoadSqlQueriesFromDirectory("NonExistentDirectory");
+            });
+        }
+
+        #endregion
+    }
+}
