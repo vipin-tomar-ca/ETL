@@ -139,7 +139,7 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             // Act & Assert
             await Assert.ThrowsExceptionAsync<SqlException>(async () =>
             {
-                await queryExecutor.ExecuteQueryAsync<Dictionary<string, object>>(timeoutQuery, timeout: 2000); // 2 second timeout
+                await queryExecutor.ExecuteQueryAsync<Dictionary<string, object>>(timeoutQuery, timeoutSeconds: 2); // 2 second timeout
             });
         }
 
@@ -273,7 +273,7 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             catch (AggregateException ex)
             {
                 // One of the tasks should fail with deadlock exception
-                ex.InnerExceptions.Should().Contain(e => e is SqlException sqlEx && sqlEx.Number == 1205);
+                ex.InnerExceptions.Should().Contain(e => e is SqlException && ((SqlException)e).Number == 1205);
             }
         }
 

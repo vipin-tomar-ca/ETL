@@ -236,8 +236,6 @@ namespace ETL.Tests.Unit
         public static void SetupMockConnection(Mock<IDbConnection> mockConnection, Mock<IDbCommand> mockCommand)
         {
             mockConnection.Setup(conn => conn.CreateCommand()).Returns(mockCommand.Object);
-            mockConnection.Setup(conn => conn.OpenAsync()).Returns(Task.CompletedTask);
-            mockConnection.Setup(conn => conn.CloseAsync()).Returns(Task.CompletedTask);
         }
 
         /// <summary>
@@ -245,9 +243,9 @@ namespace ETL.Tests.Unit
         /// </summary>
         public static void SetupMockCommand(Mock<IDbCommand> mockCommand, Mock<IDataReader> mockDataReader)
         {
-            mockCommand.Setup(cmd => cmd.ExecuteReaderAsync()).ReturnsAsync(mockDataReader.Object);
-            mockCommand.Setup(cmd => cmd.ExecuteNonQueryAsync()).ReturnsAsync(1);
-            mockCommand.Setup(cmd => cmd.ExecuteScalarAsync()).ReturnsAsync(1);
+            mockCommand.Setup(cmd => cmd.ExecuteReader()).Returns(mockDataReader.Object);
+            mockCommand.Setup(cmd => cmd.ExecuteNonQuery()).Returns(1);
+            mockCommand.Setup(cmd => cmd.ExecuteScalar()).Returns(1);
         }
 
         #endregion
@@ -493,35 +491,4 @@ namespace ETL.Tests.Unit
         #endregion
     }
 
-    #region Test Data Classes (if not already defined)
-
-    public class CustomerData
-    {
-        public int CustomerID { get; set; }
-        public string CustomerName { get; set; }
-        public string Email { get; set; }
-        public string Phone { get; set; }
-        public DateTime CreatedDate { get; set; }
-        public DateTime? ModifiedDate { get; set; }
-    }
-
-    public class OrderData
-    {
-        public int OrderID { get; set; }
-        public int CustomerID { get; set; }
-        public DateTime OrderDate { get; set; }
-        public decimal TotalAmount { get; set; }
-        public string Status { get; set; }
-    }
-
-    public class ProductData
-    {
-        public int ProductID { get; set; }
-        public string ProductName { get; set; }
-        public decimal Price { get; set; }
-        public int CategoryID { get; set; }
-        public bool Discontinued { get; set; }
-    }
-
-    #endregion
 }

@@ -751,8 +751,8 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             _mockDataReader.Setup(reader => reader.IsDBNull(It.IsAny<int>()))
                 .Returns<int>(index => dataReader.IsDBNull(index));
 
-            _mockCommand.Setup(cmd => cmd.ExecuteReaderAsync())
-                .ReturnsAsync(_mockDataReader.Object);
+            _mockCommand.Setup(cmd => cmd.ExecuteReader())
+                .Returns(_mockDataReader.Object);
         }
 
         private DataTable ConvertToDataTable<T>(List<T> data)

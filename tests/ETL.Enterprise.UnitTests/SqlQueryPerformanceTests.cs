@@ -137,7 +137,7 @@ namespace ETL.Tests.Unit
             var mockConnection = _testSetup.CreateMockConnection();
             var mockDataReader = _testSetup.CreateMockDataReader(largeDataSet);
             var mockCommand = _testSetup.CreateMockCommand();
-            mockCommand.Setup(cmd => cmd.ExecuteReaderAsync()).ReturnsAsync(mockDataReader.Object);
+            mockCommand.Setup(cmd => cmd.ExecuteReader()).Returns(mockDataReader.Object);
             mockConnection.Setup(conn => conn.CreateCommand()).Returns(mockCommand.Object);
 
             _queryExecutor = new SqlQueryExecutor(mockConnection.Object, _mockLogger.Object);
@@ -200,7 +200,7 @@ namespace ETL.Tests.Unit
             var mockConnection = _testSetup.CreateMockConnection();
             var mockDataReader = _testSetup.CreateMockDataReader(largeDataSet);
             var mockCommand = _testSetup.CreateMockCommand();
-            mockCommand.Setup(cmd => cmd.ExecuteReaderAsync()).ReturnsAsync(mockDataReader.Object);
+            mockCommand.Setup(cmd => cmd.ExecuteReader()).Returns(mockDataReader.Object);
             mockConnection.Setup(conn => conn.CreateCommand()).Returns(mockCommand.Object);
 
             _queryExecutor = new SqlQueryExecutor(mockConnection.Object, _mockLogger.Object);
@@ -266,8 +266,8 @@ namespace ETL.Tests.Unit
             var mockConnection = _testSetup.CreateMockConnection();
             var mockCommand = _testSetup.CreateMockCommand();
             mockCommand.Setup(cmd => cmd.CommandTimeout).Returns(timeoutSeconds);
-            mockCommand.Setup(cmd => cmd.ExecuteReaderAsync())
-                .ThrowsAsync(new TimeoutException("Query execution timeout"));
+            mockCommand.Setup(cmd => cmd.ExecuteReader())
+                .Throws(new TimeoutException("Query execution timeout"));
             mockConnection.Setup(conn => conn.CreateCommand()).Returns(mockCommand.Object);
 
             _queryExecutor = new SqlQueryExecutor(mockConnection.Object, _mockLogger.Object);

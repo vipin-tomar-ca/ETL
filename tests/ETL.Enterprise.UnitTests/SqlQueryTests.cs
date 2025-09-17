@@ -370,7 +370,7 @@ namespace ETL.Tests.Unit
                 ["CreatedDate"] = DateTime.Now
             };
 
-            _mockCommand.Setup(cmd => cmd.ExecuteNonQueryAsync()).ReturnsAsync(1);
+            _mockCommand.Setup(cmd => cmd.ExecuteNonQuery()).Returns(1);
             var queryExecutor = new SqlQueryExecutor(_mockConnection.Object, _mockLogger.Object);
 
             // Act
@@ -399,7 +399,7 @@ namespace ETL.Tests.Unit
                 ["ModifiedDate"] = DateTime.Now
             };
 
-            _mockCommand.Setup(cmd => cmd.ExecuteNonQueryAsync()).ReturnsAsync(1);
+            _mockCommand.Setup(cmd => cmd.ExecuteNonQuery()).Returns(1);
             var queryExecutor = new SqlQueryExecutor(_mockConnection.Object, _mockLogger.Object);
 
             // Act
@@ -419,7 +419,7 @@ namespace ETL.Tests.Unit
             var query = "DELETE FROM Customers WHERE CustomerID = @CustomerID";
             var parameters = new Dictionary<string, object> { ["CustomerID"] = 123 };
 
-            _mockCommand.Setup(cmd => cmd.ExecuteNonQueryAsync()).ReturnsAsync(1);
+            _mockCommand.Setup(cmd => cmd.ExecuteNonQuery()).Returns(1);
             var queryExecutor = new SqlQueryExecutor(_mockConnection.Object, _mockLogger.Object);
 
             // Act
@@ -453,7 +453,7 @@ namespace ETL.Tests.Unit
                 ["Price"] = 29.99m
             };
 
-            _mockCommand.Setup(cmd => cmd.ExecuteNonQueryAsync()).ReturnsAsync(1);
+            _mockCommand.Setup(cmd => cmd.ExecuteNonQuery()).Returns(1);
             var queryExecutor = new SqlQueryExecutor(_mockConnection.Object, _mockLogger.Object);
 
             // Act
@@ -478,8 +478,8 @@ namespace ETL.Tests.Unit
             var timeoutSeconds = 1;
 
             _mockCommand.Setup(cmd => cmd.CommandTimeout).Returns(timeoutSeconds);
-            _mockCommand.Setup(cmd => cmd.ExecuteReaderAsync())
-                .ThrowsAsync(new TimeoutException("Query execution timeout"));
+            _mockCommand.Setup(cmd => cmd.ExecuteReader())
+                .Throws(new TimeoutException("Query execution timeout"));
 
             var queryExecutor = new SqlQueryExecutor(_mockConnection.Object, _mockLogger.Object);
 
@@ -580,8 +580,8 @@ namespace ETL.Tests.Unit
         {
             // Arrange
             var query = "SELECT * FROM Customers";
-            _mockConnection.Setup(conn => conn.OpenAsync())
-                .ThrowsAsync(new SqlException("Connection failed"));
+            _mockConnection.Setup(conn => conn.Open())
+                .Throws(new InvalidOperationException("Connection failed"));
 
             var queryExecutor = new SqlQueryExecutor(_mockConnection.Object, _mockLogger.Object);
 
@@ -598,8 +598,8 @@ namespace ETL.Tests.Unit
         {
             // Arrange
             var query = "SELCT * FROM Customers"; // Invalid syntax
-            _mockCommand.Setup(cmd => cmd.ExecuteReaderAsync())
-                .ThrowsAsync(new SqlException("Invalid syntax"));
+            _mockCommand.Setup(cmd => cmd.ExecuteReader())
+                .Throws(new InvalidOperationException("Invalid syntax"));
 
             var queryExecutor = new SqlQueryExecutor(_mockConnection.Object, _mockLogger.Object);
 
@@ -616,8 +616,8 @@ namespace ETL.Tests.Unit
         {
             // Arrange
             var query = "SELECT * FROM RestrictedTable";
-            _mockCommand.Setup(cmd => cmd.ExecuteReaderAsync())
-                .ThrowsAsync(new SqlException("Permission denied"));
+            _mockCommand.Setup(cmd => cmd.ExecuteReader())
+                .Throws(new InvalidOperationException("Permission denied"));
 
             var queryExecutor = new SqlQueryExecutor(_mockConnection.Object, _mockLogger.Object);
 
@@ -707,7 +707,7 @@ namespace ETL.Tests.Unit
                 "INSERT INTO Customers (CustomerName, Email) VALUES ('Customer3', 'customer3@example.com')"
             };
 
-            _mockCommand.Setup(cmd => cmd.ExecuteNonQueryAsync()).ReturnsAsync(1);
+            _mockCommand.Setup(cmd => cmd.ExecuteNonQuery()).Returns(1);
             var queryExecutor = new SqlQueryExecutor(_mockConnection.Object, _mockLogger.Object);
 
             // Act
@@ -731,10 +731,10 @@ namespace ETL.Tests.Unit
                 "INVALID SQL STATEMENT" // This will cause an error
             };
 
-            _mockCommand.Setup(cmd => cmd.ExecuteNonQueryAsync())
-                .ReturnsAsync(1)
-                .ReturnsAsync(1)
-                .ThrowsAsync(new SqlException("Invalid SQL"));
+            _mockCommand.SetupSequence(cmd => cmd.ExecuteNonQuery())
+                .Returns(1)
+                .Returns(1)
+                .Throws(new InvalidOperationException("Invalid SQL"));
 
             var queryExecutor = new SqlQueryExecutor(_mockConnection.Object, _mockLogger.Object);
 
@@ -754,7 +754,8 @@ namespace ETL.Tests.Unit
         public async Task ExecuteQuery_FromSqlFile_ExecutesSuccessfully()
         {
             // Arrange
-            var sqlFileLoader = new SqlFileLoader(_mockLogger.Object);
+            var mockFileLoaderLogger = new Mock<ILogger<SqlFileLoader>>();
+            var sqlFileLoader = new SqlFileLoader(mockFileLoaderLogger.Object);
             var sqlQuery = sqlFileLoader.LoadSqlQuery("SimpleSelectCustomers");
             var expectedResults = new List<CustomerData>
             {
@@ -780,7 +781,8 @@ namespace ETL.Tests.Unit
         public async Task ExecuteQuery_FromSqlFile_WithParameters_ExecutesSuccessfully()
         {
             // Arrange
-            var sqlFileLoader = new SqlFileLoader(_mockLogger.Object);
+            var mockFileLoaderLogger = new Mock<ILogger<SqlFileLoader>>();
+            var sqlFileLoader = new SqlFileLoader(mockFileLoaderLogger.Object);
             var parameterizedQuery = sqlFileLoader.LoadParameterizedSqlQuery("SelectOrdersByDateRange");
             var parameters = new Dictionary<string, object>
             {
@@ -816,7 +818,8 @@ namespace ETL.Tests.Unit
         public async Task ExecuteQuery_MixedInlineAndFileBased_ExecutesBothSuccessfully()
         {
             // Arrange
-            var sqlFileLoader = new SqlFileLoader(_mockLogger.Object);
+            var mockFileLoaderLogger = new Mock<ILogger<SqlFileLoader>>();
+            var sqlFileLoader = new SqlFileLoader(mockFileLoaderLogger.Object);
             
             // Inline SQL query
             var inlineQuery = "SELECT CustomerID, CustomerName FROM Customers WHERE IsActive = 1";
@@ -865,8 +868,8 @@ namespace ETL.Tests.Unit
             _mockDataReader.Setup(reader => reader.IsDBNull(It.IsAny<int>()))
                 .Returns<int>(index => dataReader.IsDBNull(index));
 
-            _mockCommand.Setup(cmd => cmd.ExecuteReaderAsync())
-                .ReturnsAsync(_mockDataReader.Object);
+            _mockCommand.Setup(cmd => cmd.ExecuteReader())
+                .Returns(_mockDataReader.Object);
         }
 
         private DataTable ConvertToDataTable<T>(List<T> data)
@@ -1046,6 +1049,13 @@ namespace ETL.Tests.Unit
             // Mock implementation for testing
             await Task.Delay(1); // Simulate async operation
             return queries.Count;
+        }
+
+        public async Task<T> ExecuteScalarAsync<T>(string query, Dictionary<string, object> parameters = null, int timeoutSeconds = 30)
+        {
+            // Mock implementation for testing
+            await Task.Delay(1); // Simulate async operation
+            return default(T);
         }
     }
 

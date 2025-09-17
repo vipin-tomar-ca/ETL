@@ -405,7 +405,7 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             };
 
             SetupMockDataReader(expectedResults);
-            _mockCommand.Setup(cmd => cmd.ExecuteNonQueryAsync()).ReturnsAsync(1);
+            _mockCommand.Setup(cmd => cmd.ExecuteNonQuery()).Returns(1);
             var queryExecutor = new SqlQueryExecutor(_mockConnection.Object, _mockLogger.Object);
 
             // Act
@@ -507,8 +507,8 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             _mockDataReader.Setup(reader => reader.IsDBNull(It.IsAny<int>()))
                 .Returns<int>(index => dataReader.IsDBNull(index));
 
-            _mockCommand.Setup(cmd => cmd.ExecuteReaderAsync())
-                .ReturnsAsync(_mockDataReader.Object);
+            _mockCommand.Setup(cmd => cmd.ExecuteReader())
+                .Returns(_mockDataReader.Object);
         }
 
         private DataTable ConvertToDataTable<T>(List<T> data)

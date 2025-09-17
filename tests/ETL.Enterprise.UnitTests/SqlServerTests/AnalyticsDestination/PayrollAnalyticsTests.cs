@@ -205,7 +205,7 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
                     DepartmentName = "Engineering",
                     TotalEmployees = 50,
                     TotalGrossSalary = 4000000m,
-                    AverageGrossSalary = 80000m
+                    AverageBaseSalary = 80000m
                 },
                 new PayrollAnalyticsSummaryData
                 {
@@ -215,7 +215,7 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
                     DepartmentName = "Sales",
                     TotalEmployees = 30,
                     TotalGrossSalary = 2400000m,
-                    AverageGrossSalary = 80000m
+                    AverageBaseSalary = 80000m
                 }
             };
 
@@ -495,7 +495,7 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
                     ClientID = "CLIENT_ABC",
                     TotalEmployees = 100,
                     TotalGrossSalary = 8000000m,
-                    AverageGrossSalary = 80000m
+                    AverageBaseSalary = 80000m
                 },
                 new PayrollAnalyticsSummaryData
                 {
@@ -503,7 +503,7 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
                     ClientID = "CLIENT_XYZ",
                     TotalEmployees = 75,
                     TotalGrossSalary = 6000000m,
-                    AverageGrossSalary = 80000m
+                    AverageBaseSalary = 80000m
                 }
             };
 
@@ -592,8 +592,8 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             _mockDataReader.Setup(reader => reader.IsDBNull(It.IsAny<int>()))
                 .Returns<int>(index => dataReader.IsDBNull(index));
 
-            _mockCommand.Setup(cmd => cmd.ExecuteReaderAsync())
-                .ReturnsAsync(_mockDataReader.Object);
+            _mockCommand.Setup(cmd => cmd.ExecuteReader())
+                .Returns(_mockDataReader.Object);
         }
 
         private DataTable ConvertToDataTable<T>(List<T> data)

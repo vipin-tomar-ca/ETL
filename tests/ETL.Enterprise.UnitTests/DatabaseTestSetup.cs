@@ -32,7 +32,7 @@ namespace ETL.Tests.Unit
         public async Task<IDbConnection> CreateTestDatabaseAsync()
         {
             var connection = new SqliteConnection(_connectionString);
-            await connection.OpenAsync();
+            connection.Open();
             
             // Create test tables
             await CreateTestTablesAsync(connection);
@@ -54,14 +54,12 @@ namespace ETL.Tests.Unit
 
             // Setup connection behavior
             mockConnection.Setup(conn => conn.CreateCommand()).Returns(mockCommand.Object);
-            mockConnection.Setup(conn => conn.OpenAsync()).Returns(Task.CompletedTask);
-            mockConnection.Setup(conn => conn.CloseAsync()).Returns(Task.CompletedTask);
             mockConnection.Setup(conn => conn.State).Returns(ConnectionState.Open);
 
             // Setup command behavior
-            mockCommand.Setup(cmd => cmd.ExecuteReaderAsync()).ReturnsAsync(mockDataReader.Object);
-            mockCommand.Setup(cmd => cmd.ExecuteNonQueryAsync()).ReturnsAsync(1);
-            mockCommand.Setup(cmd => cmd.ExecuteScalarAsync()).ReturnsAsync(1);
+            mockCommand.Setup(cmd => cmd.ExecuteReader()).Returns(mockDataReader.Object);
+            mockCommand.Setup(cmd => cmd.ExecuteNonQuery()).Returns(1);
+            mockCommand.Setup(cmd => cmd.ExecuteScalar()).Returns(1);
             mockCommand.Setup(cmd => cmd.CommandTimeout).Returns(30);
 
             return mockConnection;
@@ -138,7 +136,7 @@ namespace ETL.Tests.Unit
         public async Task<IDbConnection> CreateTestDatabaseWithSchemaAsync(DatabaseSchema schema)
         {
             var connection = new SqliteConnection(_connectionString);
-            await connection.OpenAsync();
+            connection.Open();
 
             switch (schema)
             {
@@ -169,24 +167,24 @@ namespace ETL.Tests.Unit
             switch (errorType)
             {
                 case DatabaseErrorType.ConnectionTimeout:
-                    mockConnection.Setup(conn => conn.OpenAsync())
-                        .ThrowsAsync(new TimeoutException("Connection timeout"));
+                    mockConnection.Setup(conn => conn.Open())
+                        .Throws(new TimeoutException("Connection timeout"));
                     break;
                 case DatabaseErrorType.AuthenticationFailed:
-                    mockConnection.Setup(conn => conn.OpenAsync())
-                        .ThrowsAsync(new SqlException("Login failed for user"));
+                    mockConnection.Setup(conn => conn.Open())
+                        .Throws(new InvalidOperationException("Login failed for user"));
                     break;
                 case DatabaseErrorType.DatabaseNotFound:
-                    mockConnection.Setup(conn => conn.OpenAsync())
-                        .ThrowsAsync(new SqlException("Cannot open database"));
+                    mockConnection.Setup(conn => conn.Open())
+                        .Throws(new InvalidOperationException("Cannot open database"));
                     break;
                 case DatabaseErrorType.NetworkError:
-                    mockConnection.Setup(conn => conn.OpenAsync())
-                        .ThrowsAsync(new InvalidOperationException("Network error"));
+                    mockConnection.Setup(conn => conn.Open())
+                        .Throws(new InvalidOperationException("Network error"));
                     break;
                 default:
-                    mockConnection.Setup(conn => conn.OpenAsync())
-                        .ThrowsAsync(new Exception("Unknown database error"));
+                    mockConnection.Setup(conn => conn.Open())
+                        .Throws(new Exception("Unknown database error"));
                     break;
             }
 
@@ -266,7 +264,7 @@ namespace ETL.Tests.Unit
 
             using var command = connection.CreateCommand();
             command.CommandText = createTablesScript;
-            await command.ExecuteNonQueryAsync();
+            command.ExecuteNonQuery();
         }
 
         private async Task CreateETLMetadataSchemaAsync(IDbConnection connection)
@@ -334,7 +332,7 @@ namespace ETL.Tests.Unit
 
             using var command = connection.CreateCommand();
             command.CommandText = createSchemaScript;
-            await command.ExecuteNonQueryAsync();
+            command.ExecuteNonQuery();
         }
 
         private async Task CreateCustomerOrdersSchemaAsync(IDbConnection connection)
@@ -376,7 +374,7 @@ namespace ETL.Tests.Unit
 
             using var command = connection.CreateCommand();
             command.CommandText = createSchemaScript;
-            await command.ExecuteNonQueryAsync();
+            command.ExecuteNonQuery();
         }
 
         private async Task InsertTestDataAsync(IDbConnection connection)
@@ -407,7 +405,7 @@ namespace ETL.Tests.Unit
 
             using var command = connection.CreateCommand();
             command.CommandText = insertDataScript;
-            await command.ExecuteNonQueryAsync();
+            command.ExecuteNonQuery();
         }
 
         private async Task InsertLargeDatasetAsync(IDbConnection connection)
@@ -426,7 +424,7 @@ namespace ETL.Tests.Unit
                 command.Parameters.Add(new SqliteParameter("@phone", $"555-{i:D4}"));
                 command.Parameters.Add(new SqliteParameter("@date", DateTime.Now.AddDays(-i)));
                 
-                await command.ExecuteNonQueryAsync();
+                command.ExecuteNonQuery();
             }
         }
 
@@ -446,7 +444,7 @@ namespace ETL.Tests.Unit
 
             using var command = connection.CreateCommand();
             command.CommandText = insertScript;
-            await command.ExecuteNonQueryAsync();
+            command.ExecuteNonQuery();
         }
 
         private async Task InsertPerformanceTestDataAsync(IDbConnection connection)

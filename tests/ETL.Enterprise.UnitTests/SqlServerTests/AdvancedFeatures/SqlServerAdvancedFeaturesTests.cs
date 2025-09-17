@@ -71,7 +71,7 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             result.Should().NotBeEmpty("Stored procedure should return data");
             
             // Validate output parameter
-            parameters["TotalRecords"].Should().BeGreaterThan(0, "Output parameter should be set");
+            ((int)parameters["TotalRecords"]).Should().BeGreaterThan(0, "Output parameter should be set");
         }
 
         /// <summary>
@@ -354,7 +354,7 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
                     EmployeeData.value('(/Employee/LastName)[1]', 'NVARCHAR(50)') as LastName,
                     EmployeeData.value('(/Employee/Department)[1]', 'NVARCHAR(100)') as Department
                 FROM EmployeeXMLData 
-                WHERE EmployeeData.exist('/Employee[@Active="true"]') = 1";
+                WHERE EmployeeData.exist('/Employee[@Active=""true""]') = 1";
 
             // Act
             var result = await queryExecutor.ExecuteQueryAsync<Dictionary<string, object>>(xmlQuery);

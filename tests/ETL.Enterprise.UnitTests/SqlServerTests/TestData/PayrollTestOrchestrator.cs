@@ -145,7 +145,7 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
                     (SELECT COUNT(*) FROM SecurityGroups) as GroupCount,
                     (SELECT COUNT(*) FROM EmployeeSecurity) as SecurityCount";
 
-            var counts = await queryExecutor.ExecuteQueryAsync<DataCounts>(countQuery);
+            var counts = await queryExecutor.ExecuteQueryAsync<PayrollDataCounts>(countQuery);
             counts.Should().NotBeNull();
             counts.Should().HaveCount(1);
             
@@ -497,7 +497,7 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
 
     #region Test Data Classes
 
-    public class DataCounts
+    public class PayrollDataCounts
     {
         public int DepartmentCount { get; set; }
         public int PositionCount { get; set; }
