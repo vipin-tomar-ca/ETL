@@ -7,7 +7,6 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
 using System.Linq;
-using FluentAssertions;
 using ETL.Enterprise.Domain.Entities;
 using ETL.Enterprise.Domain.Enums;
 using ETL.Enterprise.Infrastructure.Services;
@@ -106,13 +105,13 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             var result = await queryExecutor.ExecuteQueryAsync<EncryptedPIIData>(query, parameters);
 
             // Assert
-            result.Should().NotBeNull();
-            result.Should().HaveCount(1);
-            result.First().EmployeeID.Should().Be(1001);
-            result.First().EncryptedSSN.Should().NotBeNull();
-            result.First().EncryptedTaxID.Should().NotBeNull();
-            result.First().EncryptedPassport.Should().NotBeNull();
-            result.First().EncryptedBankAccount.Should().NotBeNull();
+            Assert.IsNotNull(result);
+            Assert.AreEqual(1);
+            result.First().EmployeeIDAssert.AreEqual(1001);
+            result.First().EncryptedSSNAssert.IsNotNull();
+            result.First().EncryptedTaxIDAssert.IsNotNull();
+            result.First().EncryptedPassportAssert.IsNotNull();
+            result.First().EncryptedBankAccountAssert.IsNotNull();
         }
 
         /// <summary>
@@ -170,13 +169,13 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             var result = await queryExecutor.ExecuteQueryAsync<DecryptedPIIData>(query, parameters);
 
             // Assert
-            result.Should().NotBeNull();
-            result.Should().HaveCount(1);
-            result.First().EmployeeID.Should().Be(1001);
-            result.First().DecryptedSSN.Should().Be("123-45-6789");
-            result.First().DecryptedTaxID.Should().Be("TAX123456");
-            result.First().DecryptedPassport.Should().Be("PASS123456");
-            result.First().DecryptedBankAccount.Should().Be("1234567890");
+            Assert.IsNotNull(result);
+            Assert.AreEqual(1);
+            result.First().EmployeeIDAssert.AreEqual(1001);
+            result.First().DecryptedSSNAssert.AreEqual("123-45-6789");
+            result.First().DecryptedTaxIDAssert.AreEqual("TAX123456");
+            result.First().DecryptedPassportAssert.AreEqual("PASS123456");
+            result.First().DecryptedBankAccountAssert.AreEqual("1234567890");
         }
 
         #endregion
@@ -237,10 +236,10 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             var result = await queryExecutor.ExecuteQueryAsync<PayrollAccessData>(query, parameters);
 
             // Assert
-            result.Should().NotBeNull();
-            result.Should().HaveCount(1);
-            result.First().EmployeeID.Should().Be(1001);
-            result.First().BaseSalary.Should().Be(75000m);
+            Assert.IsNotNull(result);
+            Assert.AreEqual(1);
+            result.First().EmployeeIDAssert.AreEqual(1001);
+            result.First().BaseSalaryAssert.AreEqual(75000m);
         }
 
         /// <summary>
@@ -276,8 +275,8 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             var result = await queryExecutor.ExecuteQueryAsync<PayrollAccessData>(query, parameters);
 
             // Assert
-            result.Should().NotBeNull();
-            result.Should().BeEmpty();
+            Assert.IsNotNull(result);
+            Assert.AreEqual(0, result.Count, );
         }
 
         #endregion
@@ -349,12 +348,12 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             var result = await queryExecutor.ExecuteQueryAsync<MaskedData>(query, parameters);
 
             // Assert
-            result.Should().NotBeNull();
-            result.Should().HaveCount(1);
-            result.First().EmployeeID.Should().Be(1001);
-            result.First().MaskedSSN.Should().Be("XXX-XX-6789");
-            result.First().MaskedEmail.Should().Be("joh***@company.com");
-            result.First().MaskedBankAccount.Should().Be("****7890");
+            Assert.IsNotNull(result);
+            Assert.AreEqual(1);
+            result.First().EmployeeIDAssert.AreEqual(1001);
+            result.First().MaskedSSNAssert.AreEqual("XXX-XX-6789");
+            result.First().MaskedEmailAssert.AreEqual("joh***@company.com");
+            result.First().MaskedBankAccountAssert.AreEqual("****7890");
         }
 
         #endregion
@@ -412,9 +411,9 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             var result = await queryExecutor.ExecuteQueryAsync<AuditTrailData>(query, parameters);
 
             // Assert
-            result.Should().NotBeNull();
-            result.Should().HaveCount(1);
-            result.First().EmployeeID.Should().Be(1001);
+            Assert.IsNotNull(result);
+            Assert.AreEqual(1);
+            result.First().EmployeeIDAssert.AreEqual(1001);
         }
 
         #endregion
@@ -479,11 +478,11 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             var result = await queryExecutor.ExecuteQueryAsync<GDPRCompliantData>(query, parameters);
 
             // Assert
-            result.Should().NotBeNull();
-            result.Should().HaveCount(1);
-            result.First().EmployeeID.Should().Be(1001);
-            result.First().ConsentGiven.Should().BeTrue();
-            result.First().DataRetentionDate.Should().BeAfter(DateTime.Now);
+            Assert.IsNotNull(result);
+            Assert.AreEqual(1);
+            result.First().EmployeeIDAssert.AreEqual(1001);
+            Assert.IsTrue(result.First().ConsentGiven);
+            result.First().DataRetentionDateAssert.IsTrue(result.First().DataRetentionDate > DateTime.Now, DateTime.Now);
         }
 
         #endregion

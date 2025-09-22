@@ -8,7 +8,6 @@ using System.Data.SqlClient;
 using System.Threading.Tasks;
 using System.Linq;
 using System.IO;
-using FluentAssertions;
 using ETL.Enterprise.Domain.Entities;
 using ETL.Enterprise.Domain.Enums;
 using ETL.Enterprise.Infrastructure.Services;
@@ -58,7 +57,7 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             var result = await queryExecutor.ExecuteNonQueryAsync(setupScript);
 
             // Assert
-            result.Should().BeGreaterThan(0, "Database setup should create tables successfully");
+            resultAssert.IsTrue(result > 0, "Database setup should create tables successfully");
             
             // Verify tables exist
             var tableCheckQuery = @"
@@ -72,7 +71,7 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
                 )";
 
             var tableCount = await queryExecutor.ExecuteScalarAsync<int>(tableCheckQuery);
-            tableCount.Should().Be(10, "All required tables should be created");
+            tableCountAssert.AreEqual(10, "All required tables should be created");
         }
 
         /// <summary>
@@ -104,19 +103,19 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             var schemaData = await queryExecutor.ExecuteQueryAsync<SchemaInfo>(schemaQuery);
 
             // Assert
-            schemaData.Should().NotBeNull();
-            schemaData.Should().NotBeEmpty();
+            schemaDataAssert.IsNotNull();
+            schemaDataAssert.IsTrue(result.Count > 0, );
             
             var actualTables = schemaData.Select(s => s.TABLE_NAME).Distinct().ToList();
-            actualTables.Should().Contain(expectedTables);
+            actualTablesAssert.IsTrue(actualTables.Contains(expectedTables);
             
             // Verify key columns exist
             var employeeColumns = schemaData.Where(s => s.TABLE_NAME == "Employees").Select(s => s.COLUMN_NAME).ToList();
-            employeeColumns.Should().Contain("EmployeeID");
-            employeeColumns.Should().Contain("EmployeeNumber");
-            employeeColumns.Should().Contain("FirstName");
-            employeeColumns.Should().Contain("LastName");
-            employeeColumns.Should().Contain("Email");
+            employeeColumnsAssert.IsTrue(actualTables.Contains("EmployeeID");
+            employeeColumnsAssert.IsTrue(actualTables.Contains("EmployeeNumber");
+            employeeColumnsAssert.IsTrue(actualTables.Contains("FirstName");
+            employeeColumnsAssert.IsTrue(actualTables.Contains("LastName");
+            employeeColumnsAssert.IsTrue(actualTables.Contains("Email");
         }
 
         #endregion
@@ -137,7 +136,7 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             var result = await queryExecutor.ExecuteNonQueryAsync(dataGenerationScript);
 
             // Assert
-            result.Should().BeGreaterThan(0, "Test data generation should insert records successfully");
+            resultAssert.IsTrue(result > 0, "Test data generation should insert records successfully");
 
             // Verify data counts
             var countQuery = @"
@@ -155,19 +154,19 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
 
             var counts = await queryExecutor.ExecuteQueryAsync<DataCounts>(countQuery);
 
-            counts.Should().NotBeNull();
-            counts.Should().HaveCount(1);
+            countsAssert.IsNotNull();
+            countsAssert.AreEqual(1);
             
             var count = counts.First();
-            count.DepartmentCount.Should().Be(10, "Should have 10 departments");
-            count.PositionCount.Should().Be(28, "Should have 28 positions");
-            count.EmployeeCount.Should().Be(1002, "Should have 1002 employees (1000 generated + 2 edge cases)");
-            count.AddressCount.Should().Be(1002, "Should have addresses for all employees");
-            count.BankAccountCount.Should().Be(1002, "Should have bank accounts for all employees");
-            count.CompensationCount.Should().Be(1002, "Should have compensation for all employees");
-            count.RoleCount.Should().Be(7, "Should have 7 security roles");
-            count.GroupCount.Should().Be(6, "Should have 6 security groups");
-            count.SecurityCount.Should().Be(1002, "Should have security records for all employees");
+            count.DepartmentCountAssert.AreEqual(10, "Should have 10 departments");
+            count.PositionCountAssert.AreEqual(28, "Should have 28 positions");
+            count.EmployeeCountAssert.AreEqual(1002, "Should have 1002 employees (1000 generated + 2 edge cases)");
+            count.AddressCountAssert.AreEqual(1002, "Should have addresses for all employees");
+            count.BankAccountCountAssert.AreEqual(1002, "Should have bank accounts for all employees");
+            count.CompensationCountAssert.AreEqual(1002, "Should have compensation for all employees");
+            count.RoleCountAssert.AreEqual(7, "Should have 7 security roles");
+            count.GroupCountAssert.AreEqual(6, "Should have 6 security groups");
+            count.SecurityCountAssert.AreEqual(1002, "Should have security records for all employees");
         }
 
         /// <summary>
@@ -216,7 +215,7 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             foreach (var (query, description) in qualityChecks)
             {
                 var count = await queryExecutor.ExecuteScalarAsync<int>(query);
-                count.Should().Be(0, description);
+                countAssert.AreEqual(0, description);
             }
         }
 
@@ -244,7 +243,7 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             foreach (var (query, expectedCount, description) in edgeCaseQueries)
             {
                 var count = await queryExecutor.ExecuteScalarAsync<int>(query);
-                count.Should().Be(expectedCount, description);
+                countAssert.AreEqual(expectedCount, description);
             }
         }
 
@@ -286,10 +285,10 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             foreach (var table in tables)
             {
                 var filePath = Path.Combine(_baselineDataDirectory, $"{table}_baseline.json");
-                File.Exists(filePath).Should().BeTrue($"Baseline file for {table} should exist");
+                File.Exists(filePath), Assert.IsTrue($"Baseline file for {table} should exist");
                 
                 var fileContent = await File.ReadAllTextAsync(filePath);
-                fileContent.Should().NotBeNullOrEmpty($"Baseline file for {table} should not be empty");
+                fileContentAssert.IsFalse(string.IsNullOrEmpty(fileContent), $"Baseline file for {table} should not be empty");
             }
         }
 
@@ -330,10 +329,10 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             foreach (var (name, _) in scenarios)
             {
                 var filePath = Path.Combine(_baselineDataDirectory, $"{name}_scenario.json");
-                File.Exists(filePath).Should().BeTrue($"Scenario baseline file for {name} should exist");
+                File.Exists(filePath), Assert.IsTrue($"Scenario baseline file for {name} should exist");
                 
                 var fileContent = await File.ReadAllTextAsync(filePath);
-                fileContent.Should().NotBeNullOrEmpty($"Scenario baseline file for {name} should not be empty");
+                fileContentAssert.IsFalse(string.IsNullOrEmpty(fileContent), $"Scenario baseline file for {name} should not be empty");
             }
         }
 

@@ -8,7 +8,6 @@ using System.Data.SqlClient;
 using System.Threading.Tasks;
 using System.Linq;
 using System.IO;
-using FluentAssertions;
 using ETL.Enterprise.Domain.Entities;
 using ETL.Enterprise.Domain.Enums;
 using ETL.Enterprise.Infrastructure.Services;
@@ -79,7 +78,7 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
                 var baselineData = await LoadBaselineData($"{table}_baseline.json");
                 
                 // Compare data
-                currentData.Count.Should().Be(baselineData.Count, $"Table {table} should have same number of records as baseline");
+                currentData.CountAssert.AreEqual(baselineData.Count, $"Table {table} should have same number of records as baseline");
                 
                 if (currentData.Any() && baselineData.Any())
                 {
@@ -87,7 +86,7 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
                     var currentFirst = currentData.First();
                     var baselineFirst = baselineData.First();
                     
-                    currentFirst.Keys.Should().BeEquivalentTo(baselineFirst.Keys, $"Table {table} should have same columns as baseline");
+                    currentFirst.KeysCollectionAssert.AreEqual(baselineFirst.Keys, $"Table {table} should have same columns as baseline");
                     
                     // Compare data values (first few records)
                     var recordsToCompare = Math.Min(10, Math.Min(currentData.Count, baselineData.Count));
@@ -101,7 +100,7 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
                             var currentValue = currentRecord[key]?.ToString() ?? "";
                             var baselineValue = baselineRecord[key]?.ToString() ?? "";
                             
-                            currentValue.Should().Be(baselineValue, $"Table {table}, record {i}, column {key} should match baseline");
+                            currentValueAssert.AreEqual(baselineValue, $"Table {table}, record {i}, column {key} should match baseline");
                         }
                     }
                 }
@@ -175,7 +174,7 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
                 var baselineResults = await LoadBaselineData($"{name}_baseline.json");
                 
                 // Compare results
-                currentResults.Count.Should().Be(baselineResults.Count, $"Query {name} should return same number of records as baseline");
+                currentResults.CountAssert.AreEqual(baselineResults.Count, $"Query {name} should return same number of records as baseline");
                 
                 if (currentResults.Any() && baselineResults.Any())
                 {
@@ -183,7 +182,7 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
                     var currentFirst = currentResults.First();
                     var baselineFirst = baselineResults.First();
                     
-                    currentFirst.Keys.Should().BeEquivalentTo(baselineFirst.Keys, $"Query {name} should return same columns as baseline");
+                    currentFirst.KeysCollectionAssert.AreEqual(baselineFirst.Keys, $"Query {name} should return same columns as baseline");
                     
                     // Compare data values (first few records)
                     var recordsToCompare = Math.Min(5, Math.Min(currentResults.Count, baselineResults.Count));
@@ -197,7 +196,7 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
                             var currentValue = currentRecord[key]?.ToString() ?? "";
                             var baselineValue = baselineRecord[key]?.ToString() ?? "";
                             
-                            currentValue.Should().Be(baselineValue, $"Query {name}, record {i}, column {key} should match baseline");
+                            currentValueAssert.AreEqual(baselineValue, $"Query {name}, record {i}, column {key} should match baseline");
                         }
                     }
                 }
@@ -245,7 +244,7 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
                 var baselineResults = await LoadBaselineData($"{name}_scenario.json");
                 
                 // Compare results
-                currentResults.Count.Should().Be(baselineResults.Count, $"Scenario {name} should return same number of records as baseline");
+                currentResults.CountAssert.AreEqual(baselineResults.Count, $"Scenario {name} should return same number of records as baseline");
                 
                 if (currentResults.Any() && baselineResults.Any())
                 {
@@ -253,7 +252,7 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
                     var currentFirst = currentResults.First();
                     var baselineFirst = baselineResults.First();
                     
-                    currentFirst.Keys.Should().BeEquivalentTo(baselineFirst.Keys, $"Scenario {name} should return same columns as baseline");
+                    currentFirst.KeysCollectionAssert.AreEqual(baselineFirst.Keys, $"Scenario {name} should return same columns as baseline");
                 }
             }
         }
@@ -289,7 +288,7 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             {
                 var currentCount = await queryExecutor.ExecuteScalarAsync<int>(query);
                 
-                currentCount.Should().Be(expectedCount, $"Data integrity check {name} should return {expectedCount} records");
+                currentCountAssert.AreEqual(expectedCount, $"Data integrity check {name} should return {expectedCount} records");
             }
         }
 
@@ -332,8 +331,8 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
                 var result = await queryExecutor.ExecuteQueryAsync<Dictionary<string, object>>(query, parameters);
                 stopwatch.Stop();
 
-                result.Should().NotBeNull($"Query {name} should return results");
-                stopwatch.Elapsed.TotalSeconds.Should().BeLessThan(maxSeconds, $"Query {name} should execute within {maxSeconds} seconds");
+                resultAssert.IsNotNull($"Query {name} should return results");
+                stopwatch.Elapsed.TotalSecondsAssert.IsTrue(stopwatch.Elapsed.TotalSeconds < maxSeconds, $"Query {name} should execute within {maxSeconds} seconds");
                 
                 // Save performance data
                 var performanceData = new

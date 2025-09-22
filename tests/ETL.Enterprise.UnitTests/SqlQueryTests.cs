@@ -7,7 +7,6 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
 using System.Linq;
-using FluentAssertions;
 using ETL.Enterprise.Domain.Entities;
 using ETL.Enterprise.Domain.Enums;
 using ETL.Enterprise.Infrastructure.Services;
@@ -66,9 +65,9 @@ namespace ETL.Tests.Unit
             var result = await queryExecutor.ExecuteQueryAsync<CustomerData>(query);
 
             // Assert
-            result.Should().NotBeNull();
-            result.Should().HaveCount(2);
-            result.First().CustomerName.Should().Be("John Doe");
+            Assert.IsNotNull(result);
+            Assert.AreEqual(2);
+            result.First().CustomerNameAssert.AreEqual("John Doe");
         }
 
         /// <summary>
@@ -92,9 +91,9 @@ namespace ETL.Tests.Unit
             var result = await queryExecutor.ExecuteQueryAsync<OrderData>(query, parameters);
 
             // Assert
-            result.Should().NotBeNull();
-            result.Should().HaveCount(1);
-            result.First().CustomerID.Should().Be(123);
+            Assert.IsNotNull(result);
+            Assert.AreEqual(1);
+            result.First().CustomerIDAssert.AreEqual(123);
         }
 
         /// <summary>
@@ -130,9 +129,9 @@ namespace ETL.Tests.Unit
             var result = await queryExecutor.ExecuteQueryAsync<SalesData>(query, parameters);
 
             // Assert
-            result.Should().NotBeNull();
-            result.Should().HaveCount(1);
-            result.First().Region.Should().Be("North");
+            Assert.IsNotNull(result);
+            Assert.AreEqual(1);
+            result.First().RegionAssert.AreEqual("North");
         }
 
         #endregion
@@ -156,8 +155,8 @@ namespace ETL.Tests.Unit
             var result = await queryExecutor.ExecuteQueryAsync<ProductData>(query, parameters);
 
             // Assert
-            result.Should().NotBeNull();
-            result.Should().BeEmpty();
+            Assert.IsNotNull(result);
+            Assert.AreEqual(0, result.Count, );
         }
 
         /// <summary>
@@ -194,8 +193,8 @@ namespace ETL.Tests.Unit
             var result = await queryExecutor.ExecuteQueryAsync<ProductData>(query, parameters);
 
             // Assert
-            result.Should().NotBeNull();
-            result.Should().BeEmpty();
+            Assert.IsNotNull(result);
+            Assert.AreEqual(0, result.Count, );
         }
 
         #endregion
@@ -229,8 +228,8 @@ namespace ETL.Tests.Unit
             var result = await queryExecutor.ExecuteQueryAsync<CustomerData>(query);
 
             // Assert
-            result.Should().NotBeNull();
-            result.Should().HaveCount(1);
+            Assert.IsNotNull(result);
+            Assert.AreEqual(1);
         }
 
         /// <summary>
@@ -267,8 +266,8 @@ namespace ETL.Tests.Unit
             var result = await queryExecutor.ExecuteQueryAsync<EmployeeData>(query, parameters);
 
             // Assert
-            result.Should().NotBeNull();
-            result.Should().HaveCount(1);
+            Assert.IsNotNull(result);
+            Assert.AreEqual(1);
         }
 
         /// <summary>
@@ -305,8 +304,8 @@ namespace ETL.Tests.Unit
             var result = await queryExecutor.ExecuteQueryAsync<UserData>(query, parameters);
 
             // Assert
-            result.Should().NotBeNull();
-            result.Should().HaveCount(1);
+            Assert.IsNotNull(result);
+            Assert.AreEqual(1);
         }
 
         /// <summary>
@@ -343,8 +342,8 @@ namespace ETL.Tests.Unit
             var result = await queryExecutor.ExecuteQueryAsync<InventoryData>(query, parameters);
 
             // Assert
-            result.Should().NotBeNull();
-            result.Should().HaveCount(1);
+            Assert.IsNotNull(result);
+            Assert.AreEqual(1);
         }
 
         #endregion
@@ -377,7 +376,7 @@ namespace ETL.Tests.Unit
             var result = await queryExecutor.ExecuteNonQueryAsync(query, parameters);
 
             // Assert
-            result.Should().Be(1);
+            Assert.AreEqual(1);
         }
 
         /// <summary>
@@ -406,7 +405,7 @@ namespace ETL.Tests.Unit
             var result = await queryExecutor.ExecuteNonQueryAsync(query, parameters);
 
             // Assert
-            result.Should().Be(1);
+            Assert.AreEqual(1);
         }
 
         /// <summary>
@@ -426,7 +425,7 @@ namespace ETL.Tests.Unit
             var result = await queryExecutor.ExecuteNonQueryAsync(query, parameters);
 
             // Assert
-            result.Should().Be(1);
+            Assert.AreEqual(1);
         }
 
         /// <summary>
@@ -460,7 +459,7 @@ namespace ETL.Tests.Unit
             var result = await queryExecutor.ExecuteNonQueryAsync(query, parameters);
 
             // Assert
-            result.Should().Be(1);
+            Assert.AreEqual(1);
         }
 
         #endregion
@@ -508,8 +507,8 @@ namespace ETL.Tests.Unit
             var executionTime = endTime - startTime;
 
             // Assert
-            result.Should().NotBeNull();
-            executionTime.TotalSeconds.Should().BeLessThan(5, "Query should complete within 5 seconds");
+            Assert.IsNotNull(result);
+            executionTime.TotalSecondsAssert.IsTrue(executionTime.TotalSeconds < 5, "Query should complete within 5 seconds");
         }
 
         /// <summary>
@@ -563,9 +562,9 @@ namespace ETL.Tests.Unit
             var result = await queryExecutor.ExecuteQueryAsync<OrderDetailData>(query, parameters);
 
             // Assert
-            result.Should().NotBeNull();
-            result.Should().HaveCount(1);
-            result.First().CustomerName.Should().Be("John Doe");
+            Assert.IsNotNull(result);
+            Assert.AreEqual(1);
+            result.First().CustomerNameAssert.AreEqual("John Doe");
         }
 
         #endregion
@@ -678,15 +677,15 @@ namespace ETL.Tests.Unit
             var result = await queryExecutor.ExecuteQueryAsync<DataTypeTestData>(query, parameters);
 
             // Assert
-            result.Should().NotBeNull();
-            result.Should().HaveCount(1);
+            Assert.IsNotNull(result);
+            Assert.AreEqual(1);
             var data = result.First();
-            data.IntValue.Should().Be(42);
-            data.DecimalValue.Should().Be(123.45m);
-            data.StringValue.Should().Be("Test String");
-            data.DateTimeValue.Should().Be(testDateTime);
-            data.BoolValue.Should().BeTrue();
-            data.GuidValue.Should().Be(testGuid);
+            data.IntValueAssert.AreEqual(42);
+            data.DecimalValueAssert.AreEqual(123.45m);
+            data.StringValueAssert.AreEqual("Test String");
+            data.DateTimeValueAssert.AreEqual(testDateTime);
+            data.BoolValueAssert.IsTrue();
+            data.GuidValueAssert.AreEqual(testGuid);
         }
 
         #endregion
@@ -714,7 +713,7 @@ namespace ETL.Tests.Unit
             var result = await queryExecutor.ExecuteBatchAsync(queries);
 
             // Assert
-            result.Should().Be(3);
+            Assert.AreEqual(3);
         }
 
         /// <summary>
@@ -769,9 +768,9 @@ namespace ETL.Tests.Unit
             var result = await queryExecutor.ExecuteQueryAsync<CustomerData>(sqlQuery);
 
             // Assert
-            result.Should().NotBeNull();
-            result.Should().HaveCount(1);
-            result.First().CustomerName.Should().Be("John Doe");
+            Assert.IsNotNull(result);
+            Assert.AreEqual(1);
+            result.First().CustomerNameAssert.AreEqual("John Doe");
         }
 
         /// <summary>
@@ -802,13 +801,13 @@ namespace ETL.Tests.Unit
             var result = await queryExecutor.ExecuteQueryAsync<OrderData>(parameterizedQuery.Query, parameters);
 
             // Assert
-            result.Should().NotBeNull();
-            result.Should().HaveCount(1);
-            result.First().OrderID.Should().Be(1);
+            Assert.IsNotNull(result);
+            Assert.AreEqual(1);
+            result.First().OrderIDAssert.AreEqual(1);
             
             // Verify that the query contains the expected parameters
-            parameterizedQuery.Parameters.Should().Contain("StartDate");
-            parameterizedQuery.Parameters.Should().Contain("EndDate");
+            parameterizedQuery.ParametersAssert.IsTrue(parameterizedQuery.Parameters.Contains("StartDate");
+            parameterizedQuery.ParametersAssert.IsTrue(parameterizedQuery.Parameters.Contains("EndDate");
         }
 
         /// <summary>
@@ -840,11 +839,11 @@ namespace ETL.Tests.Unit
             var fileResult = await queryExecutor.ExecuteQueryAsync<CustomerData>(fileQuery);
 
             // Assert
-            inlineResult.Should().NotBeNull("Inline query should execute successfully");
-            fileResult.Should().NotBeNull("File-based query should execute successfully");
+            inlineResultAssert.IsNotNull("Inline query should execute successfully");
+            fileResultAssert.IsNotNull("File-based query should execute successfully");
             
-            inlineResult.Should().HaveCount(1);
-            fileResult.Should().HaveCount(1);
+            inlineResultAssert.AreEqual(1);
+            fileResultAssert.AreEqual(1);
         }
 
         #endregion

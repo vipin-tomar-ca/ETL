@@ -7,7 +7,6 @@ using System.Data;
 using System.Threading.Tasks;
 using System.Diagnostics;
 using System.Linq;
-using FluentAssertions;
 using ETL.Enterprise.Domain.Entities;
 using ETL.Enterprise.Domain.Enums;
 
@@ -58,7 +57,7 @@ namespace ETL.Tests.Unit
             });
 
             // Assert
-            executionTime.Should().BeLessThan(maxExecutionTime, 
+            Assert.IsTrue(executionTime < maxExecutionTime, 
                 $"Simple SELECT query should execute within {maxExecutionTime.TotalMilliseconds}ms");
         }
 
@@ -86,7 +85,7 @@ namespace ETL.Tests.Unit
             });
 
             // Assert
-            executionTime.Should().BeLessThan(maxExecutionTime, 
+            Assert.IsTrue(executionTime < maxExecutionTime, 
                 $"Complex JOIN query should execute within {maxExecutionTime.TotalMilliseconds}ms");
         }
 
@@ -115,7 +114,7 @@ namespace ETL.Tests.Unit
             });
 
             // Assert
-            executionTime.Should().BeLessThan(maxExecutionTime, 
+            Assert.IsTrue(executionTime < maxExecutionTime, 
                 $"Aggregate query should execute within {maxExecutionTime.TotalMilliseconds}ms");
         }
 
@@ -149,7 +148,7 @@ namespace ETL.Tests.Unit
             });
 
             // Assert
-            executionTime.Should().BeLessThan(maxExecutionTime, 
+            Assert.IsTrue(executionTime < maxExecutionTime, 
                 $"Large result set query should execute within {maxExecutionTime.TotalMilliseconds}ms");
         }
 
@@ -178,7 +177,7 @@ namespace ETL.Tests.Unit
             });
 
             // Assert
-            executionTime.Should().BeLessThan(maxExecutionTime, 
+            Assert.IsTrue(executionTime < maxExecutionTime, 
                 $"Query with large parameter set should execute within {maxExecutionTime.TotalMilliseconds}ms");
         }
 
@@ -212,7 +211,7 @@ namespace ETL.Tests.Unit
             var memoryIncrease = (finalMemory - initialMemory) / (1024 * 1024); // Convert to MB
 
             // Assert
-            memoryIncrease.Should().BeLessThan(maxMemoryIncreaseMB, 
+            Assert.IsTrue(memoryIncrease < maxMemoryIncreaseMB, 
                 $"Memory usage should not increase by more than {maxMemoryIncreaseMB}MB");
         }
 
@@ -245,7 +244,7 @@ namespace ETL.Tests.Unit
             var memoryIncrease = (finalMemory - initialMemory) / (1024 * 1024); // Convert to MB
 
             // Assert
-            memoryIncrease.Should().BeLessThan(maxMemoryIncreaseMB, 
+            Assert.IsTrue(memoryIncrease < maxMemoryIncreaseMB, 
                 $"Memory usage with {concurrentTasks} concurrent queries should not increase by more than {maxMemoryIncreaseMB}MB");
         }
 
@@ -294,7 +293,7 @@ namespace ETL.Tests.Unit
             var result = await _queryExecutor.ExecuteQueryAsync<CustomerData>(query, timeoutSeconds: timeoutSeconds);
 
             // Assert
-            result.Should().NotBeNull("Query should complete successfully within timeout");
+            Assert.IsNotNull(result, "Query should complete successfully within timeout");
         }
 
         #endregion
@@ -325,7 +324,7 @@ namespace ETL.Tests.Unit
             });
 
             // Assert
-            executionTime.Should().BeLessThan(maxExecutionTime, 
+            Assert.IsTrue(executionTime < maxExecutionTime, 
                 $"Batch operation with {queries.Count} queries should execute within {maxExecutionTime.TotalMilliseconds}ms");
         }
 
@@ -353,7 +352,7 @@ namespace ETL.Tests.Unit
             });
 
             // Assert
-            executionTime.Should().BeLessThan(maxExecutionTime, 
+            Assert.IsTrue(executionTime < maxExecutionTime, 
                 $"Batch operation with transaction should execute within {maxExecutionTime.TotalMilliseconds}ms");
         }
 
@@ -389,11 +388,11 @@ namespace ETL.Tests.Unit
             var totalExecutionTime = endTime - startTime;
 
             // Assert
-            totalExecutionTime.Should().BeLessThan(maxExecutionTime, 
+            Assert.IsTrue(totalExecutionTime < maxExecutionTime, 
                 $"System should handle {concurrentQueries} concurrent queries within {maxExecutionTime.TotalSeconds} seconds");
             
-            results.Should().HaveCount(concurrentQueries, "All queries should complete");
-            results.Should().OnlyContain(result => result != null, "All results should be non-null");
+            Assert.AreEqual(concurrentQueries, results.Length, "All queries should complete");
+            Assert.IsTrue(results.All(result => result != null), "All results should be non-null");
         }
 
         /// <summary>
@@ -437,7 +436,7 @@ namespace ETL.Tests.Unit
             var totalExecutionTime = endTime - startTime;
 
             // Assert
-            totalExecutionTime.Should().BeLessThan(maxExecutionTime, 
+            Assert.IsTrue(totalExecutionTime < maxExecutionTime, 
                 $"System should handle mixed query types within {maxExecutionTime.TotalSeconds} seconds");
         }
 
@@ -474,7 +473,7 @@ namespace ETL.Tests.Unit
             var averageExecutionTime = TimeSpan.FromMilliseconds(executionTimes.Average(et => et.TotalMilliseconds));
 
             // Assert
-            averageExecutionTime.Should().BeLessThan(maxAverageExecutionTime, 
+            Assert.IsTrue(averageExecutionTime < maxAverageExecutionTime, 
                 $"Average execution time over {iterations} iterations should be less than {maxAverageExecutionTime.TotalMilliseconds}ms");
         }
 
@@ -511,7 +510,7 @@ namespace ETL.Tests.Unit
             var memoryIncrease = (finalMemory - initialMemory) / (1024 * 1024); // Convert to MB
 
             // Assert
-            memoryIncrease.Should().BeLessThan(maxMemoryIncreaseMB, 
+            Assert.IsTrue(memoryIncrease < maxMemoryIncreaseMB, 
                 $"Memory usage after {iterations} iterations should not increase by more than {maxMemoryIncreaseMB}MB");
         }
 

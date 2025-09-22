@@ -8,7 +8,6 @@ using System.Data.SqlClient;
 using System.Threading.Tasks;
 using System.Linq;
 using System.IO;
-using FluentAssertions;
 using ETL.Enterprise.Domain.Entities;
 using ETL.Enterprise.Domain.Enums;
 using ETL.Enterprise.Infrastructure.Services;
@@ -67,11 +66,11 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             var result = await queryExecutor.ExecuteQueryAsync<Dictionary<string, object>>(storedProcedureQuery, parameters);
 
             // Assert
-            result.Should().NotBeNull("Stored procedure should return results");
-            result.Should().NotBeEmpty("Stored procedure should return data");
+            resultAssert.IsNotNull("Stored procedure should return results");
+            resultAssert.IsTrue(result.Count > 0, "Stored procedure should return data");
             
             // Validate output parameter
-            ((int)parameters["TotalRecords"]).Should().BeGreaterThan(0, "Output parameter should be set");
+            ((int)parameters["TotalRecords"]), Assert.IsTrue(result > 0, "Output parameter should be set");
         }
 
         /// <summary>
@@ -95,7 +94,7 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             var result = await queryExecutor.ExecuteNonQueryAsync(storedProcedureQuery, parameters);
 
             // Assert
-            result.Should().BeGreaterThan(0, "Stored procedure should update records");
+            resultAssert.IsTrue(result > 0, "Stored procedure should update records");
         }
 
         /// <summary>
@@ -158,7 +157,7 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             var result = await queryExecutor.ExecuteScalarAsync<decimal>(functionQuery, parameters);
 
             // Assert
-            result.Should().BeGreaterThan(0, "Total compensation should be positive");
+            resultAssert.IsTrue(result > 0, "Total compensation should be positive");
         }
 
         /// <summary>
@@ -182,12 +181,12 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             var result = await queryExecutor.ExecuteQueryAsync<Dictionary<string, object>>(functionQuery, parameters);
 
             // Assert
-            result.Should().NotBeNull("Table-valued function should return results");
-            result.Should().NotBeEmpty("Table-valued function should return data");
+            resultAssert.IsNotNull("Table-valued function should return results");
+            resultAssert.IsTrue(result.Count > 0, "Table-valued function should return data");
             
             // Validate hierarchy structure
-            result.All(r => r.ContainsKey("EmployeeID")).Should().BeTrue("All results should have EmployeeID");
-            result.All(r => r.ContainsKey("HierarchyLevel")).Should().BeTrue("All results should have HierarchyLevel");
+            result.All(r => r.ContainsKey("EmployeeID")), Assert.IsTrue("All results should have EmployeeID");
+            result.All(r => r.ContainsKey("HierarchyLevel")), Assert.IsTrue("All results should have HierarchyLevel");
         }
 
         /// <summary>
@@ -213,7 +212,7 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             var result = await queryExecutor.ExecuteScalarAsync<string>(functionQuery, parameters);
 
             // Assert
-            result.Should().NotBeNullOrEmpty("Statistics should be returned");
+            resultAssert.IsFalse(string.IsNullOrEmpty(result), "Statistics should be returned");
         }
 
         #endregion
@@ -264,12 +263,12 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             var result = await queryExecutor.ExecuteNonQueryAsync(insertQuery, parameters);
 
             // Assert
-            result.Should().BeGreaterThan(0, "Insert should succeed");
+            resultAssert.IsTrue(result > 0, "Insert should succeed");
             
             // Verify trigger executed (e.g., audit record created)
             var auditQuery = "SELECT COUNT(*) FROM EmployeeAuditLog WHERE EmployeeNumber = 'TEST001'";
             var auditCount = await queryExecutor.ExecuteScalarAsync<int>(auditQuery);
-            auditCount.Should().BeGreaterThan(0, "Audit trigger should have executed");
+            auditCountAssert.IsTrue(result > 0, "Audit trigger should have executed");
         }
 
         /// <summary>
@@ -297,12 +296,12 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             var result = await queryExecutor.ExecuteNonQueryAsync(updateQuery, parameters);
 
             // Assert
-            result.Should().BeGreaterThan(0, "Update should succeed");
+            resultAssert.IsTrue(result > 0, "Update should succeed");
             
             // Verify trigger executed (e.g., audit record created)
             var auditQuery = "SELECT COUNT(*) FROM EmployeeAuditLog WHERE EmployeeNumber = 'TEST001' AND Action = 'UPDATE'";
             var auditCount = await queryExecutor.ExecuteScalarAsync<int>(auditQuery);
-            auditCount.Should().BeGreaterThan(0, "Update audit trigger should have executed");
+            auditCountAssert.IsTrue(result > 0, "Update audit trigger should have executed");
         }
 
         /// <summary>
@@ -326,12 +325,12 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             var result = await queryExecutor.ExecuteNonQueryAsync(deleteQuery, parameters);
 
             // Assert
-            result.Should().BeGreaterThan(0, "Delete should succeed");
+            resultAssert.IsTrue(result > 0, "Delete should succeed");
             
             // Verify trigger executed (e.g., audit record created)
             var auditQuery = "SELECT COUNT(*) FROM EmployeeAuditLog WHERE EmployeeNumber = 'TEST001' AND Action = 'DELETE'";
             var auditCount = await queryExecutor.ExecuteScalarAsync<int>(auditQuery);
-            auditCount.Should().BeGreaterThan(0, "Delete audit trigger should have executed");
+            auditCountAssert.IsTrue(result > 0, "Delete audit trigger should have executed");
         }
 
         #endregion
@@ -360,7 +359,7 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             var result = await queryExecutor.ExecuteQueryAsync<Dictionary<string, object>>(xmlQuery);
 
             // Assert
-            result.Should().NotBeNull("XML query should return results");
+            resultAssert.IsNotNull("XML query should return results");
         }
 
         /// <summary>
@@ -386,7 +385,7 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             var result = await queryExecutor.ExecuteQueryAsync<Dictionary<string, object>>(jsonQuery);
 
             // Assert
-            result.Should().NotBeNull("JSON query should return results");
+            resultAssert.IsNotNull("JSON query should return results");
         }
 
         /// <summary>
@@ -416,7 +415,7 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             var result = await queryExecutor.ExecuteQueryAsync<Dictionary<string, object>>(geographyQuery, parameters);
 
             // Assert
-            result.Should().NotBeNull("Geography query should return results");
+            resultAssert.IsNotNull("Geography query should return results");
         }
 
         #endregion
@@ -457,7 +456,7 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             var result = await queryExecutor.ExecuteNonQueryAsync(mergeQuery, parameters);
 
             // Assert
-            result.Should().BeGreaterThan(0, "MERGE operation should succeed");
+            resultAssert.IsTrue(result > 0, "MERGE operation should succeed");
         }
 
         /// <summary>
@@ -492,7 +491,7 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             var result = await queryExecutor.ExecuteQueryAsync<Dictionary<string, object>>(pivotQuery);
 
             // Assert
-            result.Should().NotBeNull("PIVOT query should return results");
+            resultAssert.IsNotNull("PIVOT query should return results");
         }
 
         /// <summary>
@@ -527,7 +526,7 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             var result = await queryExecutor.ExecuteQueryAsync<Dictionary<string, object>>(unpivotQuery);
 
             // Assert
-            result.Should().NotBeNull("UNPIVOT query should return results");
+            resultAssert.IsNotNull("UNPIVOT query should return results");
         }
 
         #endregion

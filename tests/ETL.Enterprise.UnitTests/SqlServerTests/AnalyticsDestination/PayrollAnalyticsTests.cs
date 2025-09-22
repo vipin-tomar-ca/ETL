@@ -7,7 +7,6 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
 using System.Linq;
-using FluentAssertions;
 using ETL.Enterprise.Domain.Entities;
 using ETL.Enterprise.Domain.Enums;
 using ETL.Enterprise.Infrastructure.Services;
@@ -152,13 +151,13 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             var result = await queryExecutor.ExecuteQueryAsync<PayrollAnalyticsSummaryData>(query, parameters);
 
             // Assert
-            result.Should().NotBeNull();
-            result.Should().HaveCount(1);
-            result.First().TenantID.Should().Be("TENANT_001");
-            result.First().TotalEmployees.Should().Be(50);
-            result.First().ActiveEmployees.Should().Be(48);
-            result.First().CostPerEmployee.Should().Be(80000m);
-            result.First().DeductionPercentage.Should().Be(18.75m);
+            Assert.IsNotNull(result);
+            Assert.AreEqual(1);
+            result.First().TenantIDAssert.AreEqual("TENANT_001");
+            result.First().TotalEmployeesAssert.AreEqual(50);
+            result.First().ActiveEmployeesAssert.AreEqual(48);
+            result.First().CostPerEmployeeAssert.AreEqual(80000m);
+            result.First().DeductionPercentageAssert.AreEqual(18.75m);
         }
 
         /// <summary>
@@ -226,11 +225,11 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             var result = await queryExecutor.ExecuteQueryAsync<PayrollAnalyticsSummaryData>(query, parameters);
 
             // Assert
-            result.Should().NotBeNull();
-            result.Should().HaveCount(2);
-            result.All(r => r.TenantID == "TENANT_001").Should().BeTrue();
-            result.Sum(r => r.TotalEmployees).Should().Be(80);
-            result.Sum(r => r.TotalGrossSalary).Should().Be(6400000m);
+            Assert.IsNotNull(result);
+            Assert.AreEqual(2);
+            result.All(r => r.TenantID == "TENANT_001"), "All items should match condition");
+            result.Sum(r => r.TotalEmployees)Assert.AreEqual(80);
+            result.Sum(r => r.TotalGrossSalary)Assert.AreEqual(6400000m);
         }
 
         #endregion
@@ -339,12 +338,12 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             var result = await queryExecutor.ExecuteQueryAsync<EmployeeAnalyticsDashboardData>(query, parameters);
 
             // Assert
-            result.Should().NotBeNull();
-            result.Should().HaveCount(2);
-            result.First().SalaryRank.Should().Be(1);
-            result.First().SalaryPercentile.Should().Be(0.95);
-            result.Last().SalaryRank.Should().Be(2);
-            result.Last().SalaryPercentile.Should().Be(0.85);
+            Assert.IsNotNull(result);
+            Assert.AreEqual(2);
+            result.First().SalaryRankAssert.AreEqual(1);
+            result.First().SalaryPercentileAssert.AreEqual(0.95);
+            result.Last().SalaryRankAssert.AreEqual(2);
+            result.Last().SalaryPercentileAssert.AreEqual(0.85);
         }
 
         /// <summary>
@@ -449,10 +448,10 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             var result = await queryExecutor.ExecuteQueryAsync<EmployeeAnalyticsDashboardData>(query, parameters);
 
             // Assert
-            result.Should().NotBeNull();
-            result.Should().HaveCount(1);
-            result.First().SalaryVsDepartmentPercent.Should().Be(17.65m);
-            result.First().SalaryVsCompanyPercent.Should().Be(25.0m);
+            Assert.IsNotNull(result);
+            Assert.AreEqual(1);
+            result.First().SalaryVsDepartmentPercentAssert.AreEqual(17.65m);
+            result.First().SalaryVsCompanyPercentAssert.AreEqual(25.0m);
         }
 
         #endregion
@@ -514,12 +513,12 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             var result = await queryExecutor.ExecuteQueryAsync<PayrollAnalyticsSummaryData>(query, parameters);
 
             // Assert
-            result.Should().NotBeNull();
-            result.Should().HaveCount(2);
-            result.First().TenantID.Should().Be("TENANT_001");
-            result.First().TotalEmployees.Should().Be(100);
-            result.Last().TenantID.Should().Be("TENANT_002");
-            result.Last().TotalEmployees.Should().Be(75);
+            Assert.IsNotNull(result);
+            Assert.AreEqual(2);
+            result.First().TenantIDAssert.AreEqual("TENANT_001");
+            result.First().TotalEmployeesAssert.AreEqual(100);
+            result.Last().TenantIDAssert.AreEqual("TENANT_002");
+            result.Last().TotalEmployeesAssert.AreEqual(75);
         }
 
         #endregion
@@ -567,7 +566,7 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             });
 
             // Assert
-            executionTime.Should().BeLessThan(maxExecutionTime, 
+            executionTimeAssert.IsTrue(executionTime < maxExecutionTime, 
                 $"Analytics query should execute within {maxExecutionTime.TotalMilliseconds}ms");
         }
 

@@ -8,7 +8,6 @@ using System.Data.SqlClient;
 using System.Threading.Tasks;
 using System.Linq;
 using System.IO;
-using FluentAssertions;
 using ETL.Enterprise.Domain.Entities;
 using ETL.Enterprise.Domain.Enums;
 using ETL.Enterprise.Infrastructure.Services;
@@ -69,9 +68,9 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             {
                 var executionPlan = await AnalyzeExecutionPlan(queryExecutor, query, parameters);
                 
-                executionPlan.Should().NotBeNull($"Execution plan for {name} should be generated");
-                executionPlan.Should().Contain("SELECT", $"Execution plan for {name} should contain SELECT operations");
-                executionPlan.Should().Contain("FROM", $"Execution plan for {name} should contain FROM operations");
+                Assert.IsNotNull(executionPlan, $"Execution plan for {name} should be generated");
+                executionPlanAssert.IsTrue(executionPlan.Contains("SELECT", $"Execution plan for {name} should contain SELECT operations");
+                executionPlanAssert.IsTrue(executionPlan.Contains("FROM", $"Execution plan for {name} should contain FROM operations");
             }
         }
 
@@ -98,8 +97,8 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             var optimizationRecommendations = await AnalyzeQueryOptimization(queryExecutor, query, parameters);
 
             // Assert
-            optimizationRecommendations.Should().NotBeNull("Optimization recommendations should be provided");
-            optimizationRecommendations.Should().NotBeEmpty("Should provide specific recommendations");
+            optimizationRecommendationsAssert.IsNotNull("Optimization recommendations should be provided");
+            optimizationRecommendationsAssert.IsTrue(result.Count > 0, "Should provide specific recommendations");
         }
 
         #endregion
@@ -131,13 +130,13 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             var afterMetrics = await GetPerformanceMetrics(queryExecutor);
 
             // Assert
-            result.Should().NotBeNull("Query should execute successfully");
-            beforeMetrics.Should().NotBeNull("Before metrics should be captured");
-            afterMetrics.Should().NotBeNull("After metrics should be captured");
+            resultAssert.IsNotNull("Query should execute successfully");
+            beforeMetricsAssert.IsNotNull("Before metrics should be captured");
+            afterMetricsAssert.IsNotNull("After metrics should be captured");
             
             // Validate metrics changed
-            afterMetrics.ExecutionCount.Should().BeGreaterThan(beforeMetrics.ExecutionCount, "Execution count should increase");
-            afterMetrics.TotalElapsedTime.Should().BeGreaterThan(beforeMetrics.TotalElapsedTime, "Total elapsed time should increase");
+            afterMetrics.ExecutionCountAssert.IsTrue(result > beforeMetrics.ExecutionCount, "Execution count should increase");
+            afterMetrics.TotalElapsedTimeAssert.IsTrue(result > beforeMetrics.TotalElapsedTime, "Total elapsed time should increase");
         }
 
         /// <summary>
@@ -161,13 +160,13 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             var afterMemory = await GetMemoryUsage(queryExecutor);
 
             // Assert
-            result.Should().NotBeNull("Query should execute successfully");
-            beforeMemory.Should().NotBeNull("Before memory usage should be captured");
-            afterMemory.Should().NotBeNull("After memory usage should be captured");
+            resultAssert.IsNotNull("Query should execute successfully");
+            beforeMemoryAssert.IsNotNull("Before memory usage should be captured");
+            afterMemoryAssert.IsNotNull("After memory usage should be captured");
             
             // Validate memory usage
-            afterMemory.TotalServerMemory.Should().BeGreaterThan(0, "Total server memory should be positive");
-            afterMemory.TargetServerMemory.Should().BeGreaterThan(0, "Target server memory should be positive");
+            afterMemory.TotalServerMemoryAssert.IsTrue(result > 0, "Total server memory should be positive");
+            afterMemory.TargetServerMemoryAssert.IsTrue(result > 0, "Target server memory should be positive");
         }
 
         /// <summary>
@@ -191,12 +190,12 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             var afterCPU = await GetCPUUsage(queryExecutor);
 
             // Assert
-            result.Should().NotBeNull("Query should execute successfully");
-            beforeCPU.Should().NotBeNull("Before CPU usage should be captured");
-            afterCPU.Should().NotBeNull("After CPU usage should be captured");
+            resultAssert.IsNotNull("Query should execute successfully");
+            beforeCPUAssert.IsNotNull("Before CPU usage should be captured");
+            afterCPUAssert.IsNotNull("After CPU usage should be captured");
             
             // Validate CPU usage
-            afterCPU.ProcessorTimePercent.Should().BeGreaterThan(0, "Processor time should be positive");
+            afterCPU.ProcessorTimePercentAssert.IsTrue(result > 0, "Processor time should be positive");
         }
 
         #endregion
@@ -253,7 +252,7 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             var afterDeadlocks = await GetDeadlockCount(queryExecutor1);
 
             // Assert
-            afterDeadlocks.Should().BeGreaterThanOrEqualTo(beforeDeadlocks, "Deadlock count should not decrease");
+            afterDeadlocksAssert.IsTrue(afterDeadlocks >= beforeDeadlocks, "Deadlock count should not decrease");
         }
 
         /// <summary>
@@ -269,7 +268,7 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             var deadlockGraph = await GetDeadlockGraph(queryExecutor);
 
             // Assert
-            deadlockGraph.Should().NotBeNull("Deadlock graph should be available");
+            deadlockGraphAssert.IsNotNull("Deadlock graph should be available");
         }
 
         #endregion
@@ -306,10 +305,10 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             await queryExecutor.ExecuteNonQueryAsync("DELETE FROM Employees WHERE EmployeeNumber = 'FILE_SIZE_TEST_001'");
 
             // Assert
-            beforeFileSize.Should().NotBeNull("Before file size should be captured");
-            afterFileSize.Should().NotBeNull("After file size should be captured");
-            afterFileSize.DataFileSizeMB.Should().BeGreaterThan(0, "Data file size should be positive");
-            afterFileSize.LogFileSizeMB.Should().BeGreaterThan(0, "Log file size should be positive");
+            beforeFileSizeAssert.IsNotNull("Before file size should be captured");
+            afterFileSizeAssert.IsNotNull("After file size should be captured");
+            afterFileSize.DataFileSizeMBAssert.IsTrue(result > 0, "Data file size should be positive");
+            afterFileSize.LogFileSizeMBAssert.IsTrue(result > 0, "Log file size should be positive");
         }
 
         /// <summary>
@@ -337,12 +336,12 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             var afterIndexUsage = await GetIndexUsage(queryExecutor);
 
             // Assert
-            result.Should().NotBeNull("Query should execute successfully");
-            beforeIndexUsage.Should().NotBeNull("Before index usage should be captured");
-            afterIndexUsage.Should().NotBeNull("After index usage should be captured");
+            resultAssert.IsNotNull("Query should execute successfully");
+            beforeIndexUsageAssert.IsNotNull("Before index usage should be captured");
+            afterIndexUsageAssert.IsNotNull("After index usage should be captured");
             
             // Validate index usage
-            afterIndexUsage.Should().Contain(usage => usage.UserSeeks > 0, "Some indexes should be used");
+            afterIndexUsageAssert.IsTrue(executionPlan.Contains(usage => usage.UserSeeks > 0, "Some indexes should be used");
         }
 
         /// <summary>
@@ -376,9 +375,9 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             var afterConnections = await GetConnectionPoolStatus(queryExecutor);
 
             // Assert
-            beforeConnections.Should().NotBeNull("Before connection status should be captured");
-            afterConnections.Should().NotBeNull("After connection status should be captured");
-            afterConnections.ActiveConnections.Should().BeGreaterThan(0, "Should have active connections");
+            beforeConnectionsAssert.IsNotNull("Before connection status should be captured");
+            afterConnectionsAssert.IsNotNull("After connection status should be captured");
+            afterConnections.ActiveConnectionsAssert.IsTrue(result > 0, "Should have active connections");
         }
 
         #endregion
@@ -398,7 +397,7 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             var slowQueries = await GetSlowQueries(queryExecutor);
 
             // Assert
-            slowQueries.Should().NotBeNull("Slow queries should be detected");
+            slowQueriesAssert.IsNotNull("Slow queries should be detected");
         }
 
         /// <summary>
@@ -425,10 +424,10 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             var statistics = await GetQueryExecutionStatistics(queryExecutor, query);
 
             // Assert
-            result.Should().NotBeNull("Query should execute successfully");
-            statistics.Should().NotBeNull("Query statistics should be available");
-            statistics.ExecutionCount.Should().BeGreaterThan(0, "Execution count should be positive");
-            statistics.TotalElapsedTime.Should().BeGreaterThan(0, "Total elapsed time should be positive");
+            resultAssert.IsNotNull("Query should execute successfully");
+            statisticsAssert.IsNotNull("Query statistics should be available");
+            statistics.ExecutionCountAssert.IsTrue(result > 0, "Execution count should be positive");
+            statistics.TotalElapsedTimeAssert.IsTrue(result > 0, "Total elapsed time should be positive");
         }
 
         #endregion

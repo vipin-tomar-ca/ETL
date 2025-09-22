@@ -8,7 +8,6 @@ using System.Data.SqlClient;
 using System.Threading.Tasks;
 using System.Linq;
 using System.IO;
-using FluentAssertions;
 using ETL.Enterprise.Domain.Entities;
 using ETL.Enterprise.Domain.Enums;
 using ETL.Enterprise.Infrastructure.Services;
@@ -67,12 +66,12 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             {
                 var result = await queryExecutor.ExecuteQueryAsync<Dictionary<string, object>>(query);
                 
-                result.Should().NotBeNull($"Query for {tableName} should return results");
-                result.Should().NotBeEmpty($"Query for {tableName} should return data");
+                Assert.IsNotNull(result, $"Query for {tableName} should return results");
+                Assert.IsTrue(result.Count > 0, $"Query for {tableName} should return data");
                 
                 // Validate against baseline data
                 var baselineData = await LoadBaselineData($"{tableName}_baseline.json");
-                result.Count.Should().Be(baselineData.Count, $"Query for {tableName} should return same number of records as baseline");
+                Assert.AreEqual(baselineData.Count, result.Count, $"Query for {tableName} should return same number of records as baseline");
                 
                 // Validate first record structure
                 if (result.Any())
@@ -80,7 +79,7 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
                     var firstResult = result.First();
                     var firstBaseline = baselineData.First();
                     
-                    firstResult.Keys.Should().BeEquivalentTo(firstBaseline.Keys, $"Query for {tableName} should return same columns as baseline");
+                    Assert.IsTrue(firstResult.Keys.SequenceEqual(firstBaseline.Keys), $"Query for {tableName} should return same columns as baseline");
                 }
             }
         }
@@ -109,8 +108,8 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             {
                 var result = await queryExecutor.ExecuteQueryAsync<Dictionary<string, object>>(query);
                 
-                result.Should().NotBeNull($"Filtered query '{description}' should return results");
-                result.Count.Should().BeGreaterOrEqualTo(expectedMinCount, $"Filtered query '{description}' should return at least {expectedMinCount} records");
+                Assert.IsNotNull(result, $"Filtered query '{description}' should return results");
+                Assert.IsTrue(result.Count >= expectedMinCount, $"Filtered query '{description}' should return at least {expectedMinCount} records");
             }
         }
 
@@ -141,22 +140,22 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             var result = await queryExecutor.ExecuteQueryAsync<Dictionary<string, object>>(query, parameters);
 
             // Assert
-            result.Should().NotBeNull("Employee start data query should return results");
-            result.Should().NotBeEmpty("Employee start data query should return data");
+            Assert.IsNotNull(result, "Employee start data query should return results");
+            Assert.IsTrue(result.Count > 0, "Employee start data query should return data");
             
             // Validate result structure
             var firstResult = result.First();
-            firstResult.Should().ContainKey("EmployeeID");
-            firstResult.Should().ContainKey("EmployeeNumber");
-            firstResult.Should().ContainKey("FirstName");
-            firstResult.Should().ContainKey("LastName");
-            firstResult.Should().ContainKey("StartDate");
-            firstResult.Should().ContainKey("TenantID");
-            firstResult.Should().ContainKey("ClientID");
+            Assert.IsTrue(firstResult.ContainsKey("EmployeeID"));
+            Assert.IsTrue(firstResult.ContainsKey("EmployeeNumber"));
+            Assert.IsTrue(firstResult.ContainsKey("FirstName"));
+            Assert.IsTrue(firstResult.ContainsKey("LastName"));
+            Assert.IsTrue(firstResult.ContainsKey("StartDate"));
+            Assert.IsTrue(firstResult.ContainsKey("TenantID"));
+            Assert.IsTrue(firstResult.ContainsKey("ClientID"));
             
             // Validate tenant isolation
-            result.All(r => r["TenantID"].ToString() == "TENANT_001").Should().BeTrue("All results should have correct tenant ID");
-            result.All(r => r["ClientID"].ToString() == "CLIENT_ABC").Should().BeTrue("All results should have correct client ID");
+            Assert.IsTrue(result.All(r => r["TenantID"].ToString() == "TENANT_001"), "All results should have correct tenant ID");
+            Assert.IsTrue(result.All(r => r["ClientID"].ToString() == "CLIENT_ABC"), "All results should have correct client ID");
         }
 
         /// <summary>
@@ -179,22 +178,22 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             var result = await queryExecutor.ExecuteQueryAsync<Dictionary<string, object>>(query, parameters);
 
             // Assert
-            result.Should().NotBeNull("Employee compensation data query should return results");
-            result.Should().NotBeEmpty("Employee compensation data query should return data");
+            Assert.IsNotNull(result, "Employee compensation data query should return results");
+            Assert.IsTrue(result.Count > 0, "Employee compensation data query should return data");
             
             // Validate result structure
             var firstResult = result.First();
-            firstResult.Should().ContainKey("EmployeeID");
-            firstResult.Should().ContainKey("BaseSalary");
-            firstResult.Should().ContainKey("GrossSalary");
-            firstResult.Should().ContainKey("NetSalary");
-            firstResult.Should().ContainKey("TotalAllowances");
-            firstResult.Should().ContainKey("TotalDeductions");
+            Assert.IsTrue(firstResult.ContainsKey("EmployeeID"));
+            Assert.IsTrue(firstResult.ContainsKey("BaseSalary"));
+            Assert.IsTrue(firstResult.ContainsKey("GrossSalary"));
+            Assert.IsTrue(firstResult.ContainsKey("NetSalary"));
+            Assert.IsTrue(firstResult.ContainsKey("TotalAllowances"));
+            Assert.IsTrue(firstResult.ContainsKey("TotalDeductions"));
             
             // Validate data integrity
-            result.All(r => Convert.ToDecimal(r["BaseSalary"]) > 0).Should().BeTrue("All base salaries should be positive");
-            result.All(r => Convert.ToDecimal(r["GrossSalary"]) > 0).Should().BeTrue("All gross salaries should be positive");
-            result.All(r => Convert.ToDecimal(r["NetSalary"]) > 0).Should().BeTrue("All net salaries should be positive");
+            Assert.IsTrue(result.All(r => Convert.ToDecimal(r["BaseSalary"]) > 0), "All base salaries should be positive");
+            Assert.IsTrue(result.All(r => Convert.ToDecimal(r["GrossSalary"]) > 0), "All gross salaries should be positive");
+            Assert.IsTrue(result.All(r => Convert.ToDecimal(r["NetSalary"]) > 0), "All net salaries should be positive");
         }
 
         /// <summary>
@@ -216,20 +215,20 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             var result = await queryExecutor.ExecuteQueryAsync<Dictionary<string, object>>(query, parameters);
 
             // Assert
-            result.Should().NotBeNull("Organizational hierarchy query should return results");
-            result.Should().NotBeEmpty("Organizational hierarchy query should return data");
+            Assert.IsNotNull(result, "Organizational hierarchy query should return results");
+            Assert.IsTrue(result.Count > 0, "Organizational hierarchy query should return data");
             
             // Validate result structure
             var firstResult = result.First();
-            firstResult.Should().ContainKey("EmployeeID");
-            firstResult.Should().ContainKey("HierarchyLevel");
-            firstResult.Should().ContainKey("HierarchyPath");
-            firstResult.Should().ContainKey("DirectReportsCount");
-            firstResult.Should().ContainKey("TotalReportsCount");
+            firstResultAssert.IsTrue(firstResult.ContainsKey("EmployeeID");
+            firstResultAssert.IsTrue(firstResult.ContainsKey("HierarchyLevel");
+            firstResultAssert.IsTrue(firstResult.ContainsKey("HierarchyPath");
+            firstResultAssert.IsTrue(firstResult.ContainsKey("DirectReportsCount");
+            firstResultAssert.IsTrue(firstResult.ContainsKey("TotalReportsCount");
             
             // Validate hierarchy data
-            result.All(r => Convert.ToInt32(r["HierarchyLevel"]) >= 0).Should().BeTrue("All hierarchy levels should be non-negative");
-            result.All(r => Convert.ToInt32(r["DirectReportsCount"]) >= 0).Should().BeTrue("All direct reports counts should be non-negative");
+            result.All(r => Convert.ToInt32(r["HierarchyLevel"]) >= 0), Assert.IsTrue("All hierarchy levels should be non-negative");
+            result.All(r => Convert.ToInt32(r["DirectReportsCount"]) >= 0), Assert.IsTrue("All direct reports counts should be non-negative");
         }
 
         /// <summary>
@@ -253,24 +252,24 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             var result = await queryExecutor.ExecuteQueryAsync<Dictionary<string, object>>(query, parameters);
 
             // Assert
-            result.Should().NotBeNull("Employee absence data query should return results");
+            resultAssert.IsNotNull("Employee absence data query should return results");
             
             if (result.Any())
             {
                 // Validate result structure
                 var firstResult = result.First();
-                firstResult.Should().ContainKey("AbsenceID");
-                firstResult.Should().ContainKey("EmployeeID");
-                firstResult.Should().ContainKey("AbsenceType");
-                firstResult.Should().ContainKey("StartDate");
-                firstResult.Should().ContainKey("EndDate");
-                firstResult.Should().ContainKey("TotalDays");
-                firstResult.Should().ContainKey("IsApproved");
-                firstResult.Should().ContainKey("IsPaid");
+                firstResultAssert.IsTrue(firstResult.ContainsKey("AbsenceID");
+                firstResultAssert.IsTrue(firstResult.ContainsKey("EmployeeID");
+                firstResultAssert.IsTrue(firstResult.ContainsKey("AbsenceType");
+                firstResultAssert.IsTrue(firstResult.ContainsKey("StartDate");
+                firstResultAssert.IsTrue(firstResult.ContainsKey("EndDate");
+                firstResultAssert.IsTrue(firstResult.ContainsKey("TotalDays");
+                firstResultAssert.IsTrue(firstResult.ContainsKey("IsApproved");
+                firstResultAssert.IsTrue(firstResult.ContainsKey("IsPaid");
                 
                 // Validate absence data
-                result.All(r => Convert.ToDecimal(r["TotalDays"]) > 0).Should().BeTrue("All absence days should be positive");
-                result.All(r => Convert.ToDateTime(r["StartDate"]) <= Convert.ToDateTime(r["EndDate"])).Should().BeTrue("Start date should be before or equal to end date");
+                result.All(r => Convert.ToDecimal(r["TotalDays"]) > 0), Assert.IsTrue("All absence days should be positive");
+                result.All(r => Convert.ToDateTime(r["StartDate"]) <= Convert.ToDateTime(r["EndDate"])), Assert.IsTrue("Start date should be before or equal to end date");
             }
         }
 
@@ -297,24 +296,24 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             var result = await queryExecutor.ExecuteQueryAsync<Dictionary<string, object>>(query, parameters);
 
             // Assert
-            result.Should().NotBeNull("Payroll analytics summary query should return results");
-            result.Should().NotBeEmpty("Payroll analytics summary query should return data");
+            resultAssert.IsNotNull("Payroll analytics summary query should return results");
+            resultAssert.IsTrue(result.Count > 0, "Payroll analytics summary query should return data");
             
             // Validate result structure
             var firstResult = result.First();
-            firstResult.Should().ContainKey("TenantID");
-            firstResult.Should().ContainKey("ClientID");
-            firstResult.Should().ContainKey("TotalEmployees");
-            firstResult.Should().ContainKey("ActiveEmployees");
-            firstResult.Should().ContainKey("TotalGrossSalary");
-            firstResult.Should().ContainKey("AverageGrossSalary");
-            firstResult.Should().ContainKey("CostPerEmployee");
+            firstResultAssert.IsTrue(firstResult.ContainsKey("TenantID");
+            firstResultAssert.IsTrue(firstResult.ContainsKey("ClientID");
+            firstResultAssert.IsTrue(firstResult.ContainsKey("TotalEmployees");
+            firstResultAssert.IsTrue(firstResult.ContainsKey("ActiveEmployees");
+            firstResultAssert.IsTrue(firstResult.ContainsKey("TotalGrossSalary");
+            firstResultAssert.IsTrue(firstResult.ContainsKey("AverageGrossSalary");
+            firstResultAssert.IsTrue(firstResult.ContainsKey("CostPerEmployee");
             
             // Validate analytics data
-            result.All(r => Convert.ToInt32(r["TotalEmployees"]) > 0).Should().BeTrue("All departments should have employees");
-            result.All(r => Convert.ToInt32(r["ActiveEmployees"]) >= 0).Should().BeTrue("Active employees count should be non-negative");
-            result.All(r => Convert.ToDecimal(r["TotalGrossSalary"]) > 0).Should().BeTrue("Total gross salary should be positive");
-            result.All(r => Convert.ToDecimal(r["CostPerEmployee"]) > 0).Should().BeTrue("Cost per employee should be positive");
+            result.All(r => Convert.ToInt32(r["TotalEmployees"]) > 0), Assert.IsTrue("All departments should have employees");
+            result.All(r => Convert.ToInt32(r["ActiveEmployees"]) >= 0), Assert.IsTrue("Active employees count should be non-negative");
+            result.All(r => Convert.ToDecimal(r["TotalGrossSalary"]) > 0), Assert.IsTrue("Total gross salary should be positive");
+            result.All(r => Convert.ToDecimal(r["CostPerEmployee"]) > 0), Assert.IsTrue("Cost per employee should be positive");
         }
 
         /// <summary>
@@ -336,21 +335,21 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             var result = await queryExecutor.ExecuteQueryAsync<Dictionary<string, object>>(query, parameters);
 
             // Assert
-            result.Should().NotBeNull("Employee analytics dashboard query should return results");
-            result.Should().NotBeEmpty("Employee analytics dashboard query should return data");
+            resultAssert.IsNotNull("Employee analytics dashboard query should return results");
+            resultAssert.IsTrue(result.Count > 0, "Employee analytics dashboard query should return data");
             
             // Validate result structure
             var firstResult = result.First();
-            firstResult.Should().ContainKey("EmployeeID");
-            firstResult.Should().ContainKey("BaseSalary");
-            firstResult.Should().ContainKey("SalaryRank");
-            firstResult.Should().ContainKey("SalaryPercentile");
-            firstResult.Should().ContainKey("DepartmentAvgSalary");
-            firstResult.Should().ContainKey("CompanyAvgSalary");
+            firstResultAssert.IsTrue(firstResult.ContainsKey("EmployeeID");
+            firstResultAssert.IsTrue(firstResult.ContainsKey("BaseSalary");
+            firstResultAssert.IsTrue(firstResult.ContainsKey("SalaryRank");
+            firstResultAssert.IsTrue(firstResult.ContainsKey("SalaryPercentile");
+            firstResultAssert.IsTrue(firstResult.ContainsKey("DepartmentAvgSalary");
+            firstResultAssert.IsTrue(firstResult.ContainsKey("CompanyAvgSalary");
             
             // Validate analytics data
-            result.All(r => Convert.ToInt32(r["SalaryRank"]) > 0).Should().BeTrue("All salary ranks should be positive");
-            result.All(r => Convert.ToDouble(r["SalaryPercentile"]) >= 0 && Convert.ToDouble(r["SalaryPercentile"]) <= 1).Should().BeTrue("Salary percentiles should be between 0 and 1");
+            result.All(r => Convert.ToInt32(r["SalaryRank"]) > 0), Assert.IsTrue("All salary ranks should be positive");
+            result.All(r => Convert.ToDouble(r["SalaryPercentile"]) >= 0 && Convert.ToDouble(r["SalaryPercentile"]) <= 1), Assert.IsTrue("Salary percentiles should be between 0 and 1");
         }
 
         #endregion
@@ -392,8 +391,8 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
                 var result = await queryExecutor.ExecuteQueryAsync<Dictionary<string, object>>(query, parameters);
                 stopwatch.Stop();
 
-                result.Should().NotBeNull($"Query '{name}' should return results");
-                stopwatch.Elapsed.TotalSeconds.Should().BeLessThan(maxSeconds, $"Query '{name}' should execute within {maxSeconds} seconds");
+                resultAssert.IsNotNull($"Query '{name}' should return results");
+                stopwatch.Elapsed.TotalSecondsAssert.IsTrue(stopwatch.Elapsed.TotalSeconds < maxSeconds, $"Query '{name}' should execute within {maxSeconds} seconds");
             }
         }
 

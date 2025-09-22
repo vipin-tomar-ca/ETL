@@ -8,7 +8,6 @@ using System.Data.SqlClient;
 using System.Threading.Tasks;
 using System.Linq;
 using System.IO;
-using FluentAssertions;
 using ETL.Enterprise.Domain.Entities;
 using ETL.Enterprise.Domain.Enums;
 using ETL.Enterprise.Infrastructure.Services;
@@ -97,7 +96,7 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             var setupScript = LoadSqlScript("DatabaseSetup/CreatePayrollTestDatabase.sql");
             var result = await queryExecutor.ExecuteNonQueryAsync(setupScript);
             
-            result.Should().BeGreaterThan(0, "Database setup should create tables successfully");
+            resultAssert.IsTrue(result > 0, "Database setup should create tables successfully");
             
             // Verify tables exist
             var tableCheckQuery = @"
@@ -111,7 +110,7 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
                 )";
 
             var tableCount = await queryExecutor.ExecuteScalarAsync<int>(tableCheckQuery);
-            tableCount.Should().Be(10, "All required tables should be created");
+            tableCountAssert.AreEqual(10, "All required tables should be created");
             
             _mockLogger.Object.LogInformation("Database Setup Phase completed successfully.");
         }
@@ -129,7 +128,7 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             var dataGenerationScript = LoadSqlScript("TestDataGeneration/GenerateComprehensiveTestData.sql");
             var result = await queryExecutor.ExecuteNonQueryAsync(dataGenerationScript);
             
-            result.Should().BeGreaterThan(0, "Test data generation should insert records successfully");
+            resultAssert.IsTrue(result > 0, "Test data generation should insert records successfully");
             
             // Verify data counts
             var countQuery = @"
@@ -146,13 +145,13 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
                     (SELECT COUNT(*) FROM EmployeeSecurity) as SecurityCount";
 
             var counts = await queryExecutor.ExecuteQueryAsync<PayrollDataCounts>(countQuery);
-            counts.Should().NotBeNull();
-            counts.Should().HaveCount(1);
+            countsAssert.IsNotNull();
+            countsAssert.AreEqual(1);
             
             var count = counts.First();
-            count.EmployeeCount.Should().Be(1002, "Should have 1002 employees");
-            count.DepartmentCount.Should().Be(10, "Should have 10 departments");
-            count.PositionCount.Should().Be(28, "Should have 28 positions");
+            count.EmployeeCountAssert.AreEqual(1002, "Should have 1002 employees");
+            count.DepartmentCountAssert.AreEqual(10, "Should have 10 departments");
+            count.PositionCountAssert.AreEqual(28, "Should have 28 positions");
             
             _mockLogger.Object.LogInformation("Test Data Generation Phase completed successfully.");
         }
@@ -268,8 +267,8 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             {
                 var result = await queryExecutor.ExecuteQueryAsync<Dictionary<string, object>>(query, parameters);
                 
-                result.Should().NotBeNull($"Query {name} should return results");
-                result.Should().NotBeEmpty($"Query {name} should return data");
+                resultAssert.IsNotNull($"Query {name} should return results");
+                resultAssert.IsTrue(result.Count > 0, $"Query {name} should return data");
                 
                 // Save current results for comparison
                 var currentJson = System.Text.Json.JsonSerializer.Serialize(result, new System.Text.Json.JsonSerializerOptions
@@ -308,14 +307,14 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
                 var baselineData = await LoadBaselineData($"{table}_baseline.json");
                 
                 // Compare data
-                currentData.Count.Should().Be(baselineData.Count, $"Table {table} should have same number of records as baseline");
+                currentData.CountAssert.AreEqual(baselineData.Count, $"Table {table} should have same number of records as baseline");
                 
                 if (currentData.Any() && baselineData.Any())
                 {
                     var currentFirst = currentData.First();
                     var baselineFirst = baselineData.First();
                     
-                    currentFirst.Keys.Should().BeEquivalentTo(baselineFirst.Keys, $"Table {table} should have same columns as baseline");
+                    currentFirst.KeysCollectionAssert.AreEqual(baselineFirst.Keys, $"Table {table} should have same columns as baseline");
                 }
             }
             
@@ -356,8 +355,8 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
                 var result = await queryExecutor.ExecuteQueryAsync<Dictionary<string, object>>(query, parameters);
                 stopwatch.Stop();
 
-                result.Should().NotBeNull($"Query {name} should return results");
-                stopwatch.Elapsed.TotalSeconds.Should().BeLessThan(maxSeconds, $"Query {name} should execute within {maxSeconds} seconds");
+                resultAssert.IsNotNull($"Query {name} should return results");
+                stopwatch.Elapsed.TotalSecondsAssert.IsTrue(stopwatch.Elapsed.TotalSeconds < maxSeconds, $"Query {name} should execute within {maxSeconds} seconds");
                 
                 // Save performance data
                 var performanceData = new
@@ -404,7 +403,7 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             foreach (var (name, query, expectedCount) in integrityChecks)
             {
                 var currentCount = await queryExecutor.ExecuteScalarAsync<int>(query);
-                currentCount.Should().Be(expectedCount, $"Data integrity check {name} should return {expectedCount} records");
+                currentCountAssert.AreEqual(expectedCount, $"Data integrity check {name} should return {expectedCount} records");
             }
             
             _mockLogger.Object.LogInformation("Data Integrity Testing Phase completed successfully.");

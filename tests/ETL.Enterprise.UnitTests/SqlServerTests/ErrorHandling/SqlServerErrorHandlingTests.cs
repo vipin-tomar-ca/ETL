@@ -8,7 +8,6 @@ using System.Data.SqlClient;
 using System.Threading.Tasks;
 using System.Linq;
 using System.IO;
-using FluentAssertions;
 using ETL.Enterprise.Domain.Entities;
 using ETL.Enterprise.Domain.Enums;
 using ETL.Enterprise.Infrastructure.Services;
@@ -60,13 +59,13 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             var result = await queryExecutor.ExecuteQueryAsync<Dictionary<string, object>>(query, maliciousParameters);
 
             // Assert
-            result.Should().NotBeNull("Query should execute without error");
-            result.Should().BeEmpty("No results should be returned for malicious input");
+            resultAssert.IsNotNull("Query should execute without error");
+            Assert.AreEqual(0, result.Count, "No results should be returned for malicious input");
             
             // Verify table still exists
             var tableCheckQuery = "SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'Employees'";
             var tableCount = await queryExecutor.ExecuteScalarAsync<int>(tableCheckQuery);
-            tableCount.Should().Be(1, "Employees table should still exist");
+            tableCountAssert.AreEqual(1, "Employees table should still exist");
         }
 
         /// <summary>
@@ -91,8 +90,8 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             var result = await queryExecutor.ExecuteQueryAsync<Dictionary<string, object>>(query, maliciousParameters);
 
             // Assert
-            result.Should().NotBeNull("Query should execute without error");
-            result.Should().BeEmpty("No results should be returned for malicious input");
+            resultAssert.IsNotNull("Query should execute without error");
+            Assert.AreEqual(0, result.Count, "No results should be returned for malicious input");
         }
 
         /// <summary>
@@ -117,7 +116,7 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             var result = await queryExecutor.ExecuteQueryAsync<Dictionary<string, object>>(query, maliciousParameters);
 
             // Assert
-            result.Should().NotBeNull("Query should execute without error");
+            resultAssert.IsNotNull("Query should execute without error");
         }
 
         #endregion
@@ -169,8 +168,8 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             stopwatch.Stop();
 
             // Assert
-            result.Should().NotBeNull("Long-running query should complete");
-            stopwatch.Elapsed.TotalSeconds.Should().BeLessThan(30, "Query should complete within reasonable time");
+            resultAssert.IsNotNull("Long-running query should complete");
+            stopwatch.Elapsed.TotalSecondsAssert.IsTrue(stopwatch.Elapsed.TotalSeconds < 30, "Query should complete within reasonable time");
         }
 
         /// <summary>
@@ -203,8 +202,8 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             var memoryIncrease = (finalMemory - initialMemory) / (1024 * 1024); // MB
 
             // Assert
-            result.Should().NotBeNull("Large result set query should complete");
-            memoryIncrease.Should().BeLessThan(500, "Memory increase should be reasonable"); // Less than 500MB
+            resultAssert.IsNotNull("Large result set query should complete");
+            memoryIncreaseAssert.IsTrue(stopwatch.Elapsed.TotalSeconds < 500, "Memory increase should be reasonable"); // Less than 500MB
         }
 
         #endregion
@@ -273,7 +272,7 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             catch (AggregateException ex)
             {
                 // One of the tasks should fail with deadlock exception
-                ex.InnerExceptions.Should().Contain(e => e is SqlException && ((SqlException)e).Number == 1205);
+                ex.InnerExceptionsAssert.IsTrue(ex.InnerExceptions.Any(e => e is SqlException && ((SqlException)e).Number == 1205), e => e is SqlException && ((SqlException)e).Number == 1205);
             }
         }
 
@@ -323,8 +322,8 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             var result = await queryExecutor.ExecuteQueryAsync<Dictionary<string, object>>(nullQuery);
 
             // Assert
-            result.Should().NotBeNull("Query with NULL values should execute");
-            result.Should().NotBeEmpty("Should return employees with NULL values");
+            resultAssert.IsNotNull("Query with NULL values should execute");
+            resultAssert.IsTrue(result.Count > 0, "Should return employees with NULL values");
         }
 
         /// <summary>
@@ -344,8 +343,8 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             var result = await queryExecutor.ExecuteQueryAsync<Dictionary<string, object>>(emptyQuery);
 
             // Assert
-            result.Should().NotBeNull("Query should execute without error");
-            result.Should().BeEmpty("Should return empty result set");
+            resultAssert.IsNotNull("Query should execute without error");
+            Assert.AreEqual(0, result.Count, "Should return empty result set");
         }
 
         /// <summary>
@@ -451,7 +450,7 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             // Verify rollback occurred
             var verifyQuery = "SELECT FirstName FROM Employees WHERE EmployeeID = 1";
             var firstName = await queryExecutor.ExecuteScalarAsync<string>(verifyQuery);
-            firstName.Should().NotBe("Updated", "Transaction should have been rolled back");
+            firstNameAssert.AreNotEqual("Updated", "Transaction should have been rolled back");
         }
 
         /// <summary>

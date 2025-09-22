@@ -7,7 +7,6 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
 using System.Linq;
-using FluentAssertions;
 using ETL.Enterprise.Domain.Entities;
 using ETL.Enterprise.Domain.Enums;
 using ETL.Enterprise.Infrastructure.Services;
@@ -115,11 +114,11 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             var result = await queryExecutor.ExecuteQueryAsync<EmployeeStartData>(query, parameters);
 
             // Assert
-            result.Should().NotBeNull();
-            result.Should().HaveCount(1);
-            result.First().EmployeeID.Should().Be(1001);
-            result.First().TenantID.Should().Be("TENANT_001");
-            result.First().ClientID.Should().Be("CLIENT_ABC");
+            Assert.IsNotNull(result);
+            Assert.AreEqual(1);
+            result.First().EmployeeIDAssert.AreEqual(1001);
+            result.First().TenantIDAssert.AreEqual("TENANT_001");
+            result.First().ClientIDAssert.AreEqual("CLIENT_ABC");
         }
 
         /// <summary>
@@ -191,10 +190,10 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             var result = await queryExecutor.ExecuteQueryAsync<EmployeeStartData>(query, parameters);
 
             // Assert
-            result.Should().NotBeNull();
-            result.Should().HaveCount(2);
-            result.All(r => r.DepartmentID == 10).Should().BeTrue();
-            result.All(r => r.TenantID == "TENANT_001").Should().BeTrue();
+            Assert.IsNotNull(result);
+            Assert.AreEqual(2);
+            result.All(r => r.DepartmentID == 10), "All items should match condition");
+            result.All(r => r.TenantID == "TENANT_001"), "All items should match condition");
         }
 
         #endregion
@@ -264,11 +263,11 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             var result = await queryExecutor.ExecuteQueryAsync<EmployeeExitData>(query, parameters);
 
             // Assert
-            result.Should().NotBeNull();
-            result.Should().HaveCount(1);
-            result.First().EmployeeID.Should().Be(2001);
-            result.First().TerminationReason.Should().Be("Resignation");
-            result.First().TenantID.Should().Be("TENANT_001");
+            Assert.IsNotNull(result);
+            Assert.AreEqual(1);
+            result.First().EmployeeIDAssert.AreEqual(2001);
+            result.First().TerminationReasonAssert.AreEqual("Resignation");
+            result.First().TenantIDAssert.AreEqual("TENANT_001");
         }
 
         #endregion
@@ -339,11 +338,11 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             var result = await queryExecutor.ExecuteQueryAsync<EmployeeCompensationData>(query, parameters);
 
             // Assert
-            result.Should().NotBeNull();
-            result.Should().HaveCount(1);
-            result.First().EmployeeID.Should().Be(1001);
-            result.First().BaseSalary.Should().Be(75000m);
-            result.First().NetSalary.Should().Be(65000m);
+            Assert.IsNotNull(result);
+            Assert.AreEqual(1);
+            result.First().EmployeeIDAssert.AreEqual(1001);
+            result.First().BaseSalaryAssert.AreEqual(75000m);
+            result.First().NetSalaryAssert.AreEqual(65000m);
         }
 
         #endregion
@@ -420,11 +419,11 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             var result = await queryExecutor.ExecuteQueryAsync<EmployeePIIData>(query, parameters);
 
             // Assert
-            result.Should().NotBeNull();
-            result.Should().HaveCount(1);
-            result.First().EmployeeID.Should().Be(1001);
-            result.First().SocialSecurityNumber.Should().Be("123-45-6789");
-            result.First().BankAccountNumber.Should().Be("1234567890");
+            Assert.IsNotNull(result);
+            Assert.AreEqual(1);
+            result.First().EmployeeIDAssert.AreEqual(1001);
+            result.First().SocialSecurityNumberAssert.AreEqual("123-45-6789");
+            result.First().BankAccountNumberAssert.AreEqual("1234567890");
         }
 
         #endregion
@@ -499,10 +498,10 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             var result = await queryExecutor.ExecuteQueryAsync<OrganizationalHierarchyData>(query, parameters);
 
             // Assert
-            result.Should().NotBeNull();
-            result.Should().HaveCount(1);
-            result.First().EmployeeID.Should().Be(1001);
-            result.First().HierarchyLevel.Should().Be(2);
+            Assert.IsNotNull(result);
+            Assert.AreEqual(1);
+            result.First().EmployeeIDAssert.AreEqual(1001);
+            result.First().HierarchyLevelAssert.AreEqual(2);
         }
 
         #endregion
@@ -572,11 +571,11 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             var result = await queryExecutor.ExecuteQueryAsync<EmployeeAbsenceData>(query, parameters);
 
             // Assert
-            result.Should().NotBeNull();
-            result.Should().HaveCount(1);
-            result.First().AbsenceID.Should().Be(5001);
-            result.First().AbsenceType.Should().Be("Sick Leave");
-            result.First().TotalDays.Should().Be(3);
+            Assert.IsNotNull(result);
+            Assert.AreEqual(1);
+            result.First().AbsenceIDAssert.AreEqual(5001);
+            result.First().AbsenceTypeAssert.AreEqual("Sick Leave");
+            result.First().TotalDaysAssert.AreEqual(3);
         }
 
         #endregion
@@ -641,11 +640,11 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             var result = await queryExecutor.ExecuteQueryAsync<DynamicSecurityData>(query, parameters);
 
             // Assert
-            result.Should().NotBeNull();
-            result.Should().HaveCount(1);
-            result.First().SecurityID.Should().Be(3001);
-            result.First().CanViewPayroll.Should().BeTrue();
-            result.First().CanViewPII.Should().BeTrue();
+            Assert.IsNotNull(result);
+            Assert.AreEqual(1);
+            result.First().SecurityIDAssert.AreEqual(3001);
+            result.First().CanViewPayrollAssert.IsTrue();
+            result.First().CanViewPIIAssert.IsTrue();
         }
 
         #endregion
@@ -719,15 +718,15 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             var tenant2Result = await queryExecutor.ExecuteQueryAsync<EmployeeStartData>(query, tenant2Parameters);
 
             // Assert
-            tenant1Result.Should().NotBeNull();
-            tenant1Result.Should().HaveCount(1);
-            tenant1Result.First().TenantID.Should().Be("TENANT_001");
-            tenant1Result.First().ClientID.Should().Be("CLIENT_ABC");
+            tenant1ResultAssert.IsNotNull();
+            tenant1ResultAssert.AreEqual(1);
+            tenant1Result.First().TenantIDAssert.AreEqual("TENANT_001");
+            tenant1Result.First().ClientIDAssert.AreEqual("CLIENT_ABC");
 
-            tenant2Result.Should().NotBeNull();
-            tenant2Result.Should().HaveCount(1);
-            tenant2Result.First().TenantID.Should().Be("TENANT_002");
-            tenant2Result.First().ClientID.Should().Be("CLIENT_XYZ");
+            tenant2ResultAssert.IsNotNull();
+            tenant2ResultAssert.AreEqual(1);
+            tenant2Result.First().TenantIDAssert.AreEqual("TENANT_002");
+            tenant2Result.First().ClientIDAssert.AreEqual("CLIENT_XYZ");
         }
 
         #endregion

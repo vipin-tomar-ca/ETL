@@ -8,7 +8,6 @@ using System.Data.SqlClient;
 using System.Threading.Tasks;
 using System.Linq;
 using System.IO;
-using FluentAssertions;
 using ETL.Enterprise.Domain.Entities;
 using ETL.Enterprise.Domain.Enums;
 using ETL.Enterprise.Infrastructure.Services;
@@ -65,7 +64,7 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             // Assert
             var testEmployeeCount = await queryExecutor.ExecuteScalarAsync<int>(
                 "SELECT COUNT(*) FROM Employees WHERE EmployeeNumber LIKE 'CLEANUP_TEST_%'");
-            testEmployeeCount.Should().Be(0, "All test employees should be cleaned up");
+            testEmployeeCountAssert.AreEqual(0, "All test employees should be cleaned up");
         }
 
         /// <summary>
@@ -112,9 +111,9 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             var testBankCount = await queryExecutor.ExecuteScalarAsync<int>(
                 "SELECT COUNT(*) FROM EmployeeBankAccounts eba INNER JOIN Employees e ON eba.EmployeeID = e.EmployeeID WHERE e.EmployeeNumber LIKE 'CLEANUP_FK_%'");
             
-            testEmployeeCount.Should().Be(0, "Test employees should be cleaned up");
-            testAddressCount.Should().Be(0, "Test addresses should be cleaned up");
-            testBankCount.Should().Be(0, "Test bank accounts should be cleaned up");
+            testEmployeeCountAssert.AreEqual(0, "Test employees should be cleaned up");
+            testAddressCountAssert.AreEqual(0, "Test addresses should be cleaned up");
+            testBankCountAssert.AreEqual(0, "Test bank accounts should be cleaned up");
         }
 
         /// <summary>
@@ -146,7 +145,7 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             // Assert
             var testEmployeeCount = await queryExecutor.ExecuteScalarAsync<int>(
                 "SELECT COUNT(*) FROM Employees WHERE EmployeeNumber LIKE 'CLEANUP_TXN_%'");
-            testEmployeeCount.Should().Be(0, "Test employees should be cleaned up");
+            testEmployeeCountAssert.AreEqual(0, "Test employees should be cleaned up");
         }
 
         #endregion
@@ -180,7 +179,7 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             // Assert
             var testEmployeeCount = await queryExecutor.ExecuteScalarAsync<int>(
                 "SELECT COUNT(*) FROM Employees WHERE EmployeeNumber LIKE 'RESET_TEST_%'");
-            testEmployeeCount.Should().Be(0, "Database should be reset to clean state");
+            testEmployeeCountAssert.AreEqual(0, "Database should be reset to clean state");
         }
 
         /// <summary>
@@ -215,8 +214,8 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             var newEmployeeIdentity = await queryExecutor.ExecuteScalarAsync<int>("SELECT IDENT_CURRENT('Employees')");
             var newDepartmentIdentity = await queryExecutor.ExecuteScalarAsync<int>("SELECT IDENT_CURRENT('Departments')");
             
-            newEmployeeIdentity.Should().Be(originalEmployeeIdentity, "Employee identity should be reset");
-            newDepartmentIdentity.Should().Be(originalDepartmentIdentity, "Department identity should be reset");
+            newEmployeeIdentityAssert.AreEqual(originalEmployeeIdentity, "Employee identity should be reset");
+            newDepartmentIdentityAssert.AreEqual(originalDepartmentIdentity, "Department identity should be reset");
         }
 
         #endregion
@@ -245,8 +244,8 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             await CleanupDatabaseConnections(connections);
 
             // Assert
-            connections.Should().AllSatisfy(conn => 
-                conn.State.Should().Be(ConnectionState.Closed, "All connections should be closed"));
+            connectionsAssert.IsTrue(connections.All(conn => conn => 
+                Assert.AreEqual(conn.State, ConnectionState.Closed, "All connections should be closed"));
         }
 
         /// <summary>
@@ -269,7 +268,7 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             // Transaction should be committed or rolled back
             var transactionCount = await queryExecutor.ExecuteScalarAsync<int>(
                 "SELECT COUNT(*) FROM sys.dm_tran_active_transactions");
-            transactionCount.Should().Be(0, "No active transactions should remain");
+            transactionCountAssert.AreEqual(0, "No active transactions should remain");
         }
 
         /// <summary>
@@ -304,8 +303,8 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             var tempProcCount = await queryExecutor.ExecuteScalarAsync<int>(
                 "SELECT COUNT(*) FROM tempdb.sys.procedures WHERE name LIKE '#TempTestProc%'");
             
-            tempTableCount.Should().Be(0, "Temporary tables should be cleaned up");
-            tempProcCount.Should().Be(0, "Temporary procedures should be cleaned up");
+            tempTableCountAssert.AreEqual(0, "Temporary tables should be cleaned up");
+            tempProcCountAssert.AreEqual(0, "Temporary procedures should be cleaned up");
         }
 
         #endregion
@@ -338,7 +337,7 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             var integrityIssues = await ValidateDataIntegrity(queryExecutor);
 
             // Assert
-            integrityIssues.Should().BeEmpty("No data integrity issues should remain after cleanup");
+            integrityIssuesAssert.AreEqual(0, integrityIssues.Count, "No data integrity issues should remain after cleanup");
         }
 
         /// <summary>
@@ -374,7 +373,7 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             var constraintViolations = await ValidateForeignKeyConstraints(queryExecutor);
 
             // Assert
-            constraintViolations.Should().BeEmpty("No foreign key constraint violations should remain after cleanup");
+            constraintViolationsAssert.AreEqual(0, integrityIssues.Count, "No foreign key constraint violations should remain after cleanup");
         }
 
         #endregion

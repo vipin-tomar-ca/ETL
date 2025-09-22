@@ -8,7 +8,6 @@ using System.Data.SqlClient;
 using System.Threading.Tasks;
 using System.Linq;
 using System.IO;
-using FluentAssertions;
 using ETL.Enterprise.Domain.Entities;
 using ETL.Enterprise.Domain.Enums;
 using ETL.Enterprise.Infrastructure.Services;
@@ -78,7 +77,7 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
 
             // Assert
             var result = await task2;
-            result.Should().Be("DirtyRead", "READ UNCOMMITTED should allow dirty reads");
+            Assert.AreEqual("DirtyRead", "READ UNCOMMITTED should allow dirty reads");
         }
 
         /// <summary>
@@ -121,7 +120,7 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
 
             // Assert
             var result = await task2;
-            result.Should().NotBe("ReadCommitted", "READ COMMITTED should prevent dirty reads");
+            resultAssert.AreNotEqual("ReadCommitted", "READ COMMITTED should prevent dirty reads");
         }
 
         /// <summary>
@@ -167,7 +166,7 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
 
             // Assert
             var result = await task1;
-            result.FirstRead.Should().Be(result.SecondRead, "REPEATABLE READ should prevent non-repeatable reads");
+            result.FirstReadAssert.AreEqual(result.SecondRead, "REPEATABLE READ should prevent non-repeatable reads");
         }
 
         /// <summary>
@@ -222,7 +221,7 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
 
             // Assert
             var result = await task1;
-            result.FirstCount.Should().Be(result.SecondCount, "SERIALIZABLE should prevent phantom reads");
+            result.FirstCountAssert.AreEqual(result.SecondCount, "SERIALIZABLE should prevent phantom reads");
         }
 
         #endregion
@@ -258,7 +257,7 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             var results = await Task.WhenAll(tasks);
 
             // Assert
-            results.Should().AllBeEquivalentTo(results[0], "All concurrent reads should return same result");
+            resultsAssert.IsTrue(results.All(r => r.Equals(results[0])), results[0], "All concurrent reads should return same result");
         }
 
         /// <summary>
@@ -326,7 +325,7 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             var result = await queryExecutor.ExecuteNonQueryAsync(bulkUpdateQuery);
 
             // Assert
-            result.Should().BeGreaterThan(0, "Bulk update should succeed");
+            resultAssert.IsTrue(result > 0, "Bulk update should succeed");
         }
 
         #endregion
@@ -351,7 +350,7 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
 
             // Assert
             var currentFirstName = await queryExecutor.ExecuteScalarAsync<string>("SELECT FirstName FROM Employees WHERE EmployeeID = 1");
-            currentFirstName.Should().Be(originalFirstName, "Rollback should restore original value");
+            currentFirstNameAssert.AreEqual(originalFirstName, "Rollback should restore original value");
         }
 
         /// <summary>
@@ -376,7 +375,7 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
 
             // Assert
             var currentFirstName = await queryExecutor.ExecuteScalarAsync<string>("SELECT FirstName FROM Employees WHERE EmployeeID = 1");
-            currentFirstName.Should().Be(originalFirstName, "Error should cause implicit rollback");
+            currentFirstNameAssert.AreEqual(originalFirstName, "Error should cause implicit rollback");
         }
 
         /// <summary>
@@ -403,8 +402,8 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             var currentFirstName = await queryExecutor.ExecuteScalarAsync<string>("SELECT FirstName FROM Employees WHERE EmployeeID = 1");
             var currentLastName = await queryExecutor.ExecuteScalarAsync<string>("SELECT LastName FROM Employees WHERE EmployeeID = 1");
             
-            currentFirstName.Should().Be("SavepointTest", "First update should be committed");
-            currentLastName.Should().Be(originalLastName, "Second update should be rolled back to savepoint");
+            currentFirstNameAssert.AreEqual("SavepointTest", "First update should be committed");
+            currentLastNameAssert.AreEqual(originalLastName, "Second update should be rolled back to savepoint");
         }
 
         #endregion
@@ -440,9 +439,9 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             var compensationModified = await queryExecutor.ExecuteScalarAsync<DateTime?>("SELECT ModifiedDate FROM EmployeeCompensation WHERE EmployeeID = 1");
             var addressModified = await queryExecutor.ExecuteScalarAsync<DateTime?>("SELECT ModifiedDate FROM EmployeeAddresses WHERE EmployeeID = 1");
             
-            employeeModified.Should().NotBeNull("Employee should be updated");
-            compensationModified.Should().NotBeNull("Compensation should be updated");
-            addressModified.Should().NotBeNull("Address should be updated");
+            employeeModifiedAssert.IsNotNull("Employee should be updated");
+            compensationModifiedAssert.IsNotNull("Compensation should be updated");
+            addressModifiedAssert.IsNotNull("Address should be updated");
         }
 
         #endregion
@@ -496,7 +495,7 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
 
             // Assert
             var auditCount = await queryExecutor.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM EmployeeAuditLog WHERE ActionBy = 'LargeTransaction'");
-            auditCount.Should().Be(100, "Large transaction should complete successfully");
+            auditCountAssert.AreEqual(100, "Large transaction should complete successfully");
         }
 
         #endregion

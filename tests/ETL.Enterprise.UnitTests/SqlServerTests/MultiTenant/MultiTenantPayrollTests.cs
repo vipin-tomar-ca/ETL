@@ -7,7 +7,6 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
 using System.Linq;
-using FluentAssertions;
 using ETL.Enterprise.Domain.Entities;
 using ETL.Enterprise.Domain.Enums;
 using ETL.Enterprise.Infrastructure.Services;
@@ -113,19 +112,19 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             var tenant2Result = await queryExecutor.ExecuteQueryAsync<MultiTenantEmployeeData>(query, tenant2Parameters);
 
             // Assert
-            tenant1Result.Should().NotBeNull();
-            tenant1Result.Should().HaveCount(1);
-            tenant1Result.First().TenantID.Should().Be("TENANT_001");
-            tenant1Result.First().ClientID.Should().Be("CLIENT_ABC");
+            tenant1ResultAssert.IsNotNull();
+            tenant1ResultAssert.AreEqual(1);
+            tenant1Result.First().TenantIDAssert.AreEqual("TENANT_001");
+            tenant1Result.First().ClientIDAssert.AreEqual("CLIENT_ABC");
 
-            tenant2Result.Should().NotBeNull();
-            tenant2Result.Should().HaveCount(1);
-            tenant2Result.First().TenantID.Should().Be("TENANT_002");
-            tenant2Result.First().ClientID.Should().Be("CLIENT_XYZ");
+            tenant2ResultAssert.IsNotNull();
+            tenant2ResultAssert.AreEqual(1);
+            tenant2Result.First().TenantIDAssert.AreEqual("TENANT_002");
+            tenant2Result.First().ClientIDAssert.AreEqual("CLIENT_XYZ");
 
             // Verify no cross-tenant data leakage
-            tenant1Result.All(r => r.TenantID == "TENANT_001").Should().BeTrue();
-            tenant2Result.All(r => r.TenantID == "TENANT_002").Should().BeTrue();
+            tenant1Result.All(r => r.TenantID == "TENANT_001"), "All items should match condition");
+            tenant2Result.All(r => r.TenantID == "TENANT_002"), "All items should match condition");
         }
 
         /// <summary>
@@ -191,11 +190,11 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             var result = await queryExecutor.ExecuteQueryAsync<MultiTenantEmployeeData>(query, parameters);
 
             // Assert
-            result.Should().NotBeNull();
-            result.Should().HaveCount(2);
-            result.All(r => r.TenantID == "TENANT_001").Should().BeTrue();
-            result.All(r => r.ClientID == "CLIENT_ABC").Should().BeTrue();
-            result.All(r => r.DepartmentID == 10).Should().BeTrue();
+            Assert.IsNotNull(result);
+            Assert.AreEqual(2);
+            result.All(r => r.TenantID == "TENANT_001"), "All items should match condition");
+            result.All(r => r.ClientID == "CLIENT_ABC"), "All items should match condition");
+            result.All(r => r.DepartmentID == 10), "All items should match condition");
         }
 
         #endregion
@@ -269,11 +268,11 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             var result = await queryExecutor.ExecuteQueryAsync<CrossTenantAnalyticsData>(query, parameters);
 
             // Assert
-            result.Should().NotBeNull();
-            result.Should().HaveCount(3);
-            result.Sum(r => r.TotalEmployees).Should().Be(225);
-            result.Sum(r => r.TotalGrossSalary).Should().Be(18000000m);
-            result.All(r => r.AverageGrossSalary == 80000m).Should().BeTrue();
+            Assert.IsNotNull(result);
+            Assert.AreEqual(3);
+            result.Sum(r => r.TotalEmployees)Assert.AreEqual(225);
+            result.Sum(r => r.TotalGrossSalary)Assert.AreEqual(18000000m);
+            result.All(r => r.AverageGrossSalary == 80000m), "All items should match condition");
         }
 
         /// <summary>
@@ -361,12 +360,12 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             var result = await queryExecutor.ExecuteQueryAsync<CrossTenantAnalyticsData>(query, parameters);
 
             // Assert
-            result.Should().NotBeNull();
-            result.Should().HaveCount(2);
-            result.First().RevenueRank.Should().Be(1);
-            result.First().TenantID.Should().Be("TENANT_001");
-            result.Last().RevenueRank.Should().Be(2);
-            result.Last().TenantID.Should().Be("TENANT_002");
+            Assert.IsNotNull(result);
+            Assert.AreEqual(2);
+            result.First().RevenueRankAssert.AreEqual(1);
+            result.First().TenantIDAssert.AreEqual("TENANT_001");
+            result.Last().RevenueRankAssert.AreEqual(2);
+            result.Last().TenantIDAssert.AreEqual("TENANT_002");
         }
 
         #endregion
@@ -440,11 +439,11 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             var result = await queryExecutor.ExecuteQueryAsync<TenantDataValidationData>(query, parameters);
 
             // Assert
-            result.Should().NotBeNull();
-            result.Should().HaveCount(2);
-            result.All(r => r.NullEmployeeIDs == 0).Should().BeTrue();
-            result.All(r => r.InvalidFirstNames == 0).Should().BeTrue();
-            result.All(r => r.InvalidLastNames == 0).Should().BeTrue();
+            Assert.IsNotNull(result);
+            Assert.AreEqual(2);
+            result.All(r => r.NullEmployeeIDs == 0), "All items should match condition");
+            result.All(r => r.InvalidFirstNames == 0), "All items should match condition");
+            result.All(r => r.InvalidLastNames == 0), "All items should match condition");
         }
 
         #endregion
@@ -490,7 +489,7 @@ namespace ETL.Tests.Unit.SqlServer.Payroll
             });
 
             // Assert
-            executionTime.Should().BeLessThan(maxExecutionTime, 
+            executionTimeAssert.IsTrue(executionTime < maxExecutionTime, 
                 $"Multi-tenant query should execute within {maxExecutionTime.TotalMilliseconds}ms");
         }
 
